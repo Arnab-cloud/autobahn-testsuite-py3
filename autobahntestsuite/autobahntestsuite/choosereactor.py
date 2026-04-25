@@ -16,23 +16,29 @@
 ##
 ###############################################################################
 
-import sys, json
+# import json
+import sys
 
 ## Install Twisted reactor. This needs to be done here,
 ## before importing any other Twisted/Autobahn stuff!
 ##
-if 'bsd' in sys.platform or sys.platform.startswith('darwin'):
-   try:
-      v = sys.version_info
-      if v[0] == 1 or (v[0] == 2 and v[1] < 6) or (v[0] == 2 and v[1] == 6 and v[2] < 5):
-         raise Exception("Python version too old (%s)" % sys.version)
-      from twisted.internet import kqreactor
-      kqreactor.install()
-   except Exception, e:
-      print """
+if "bsd" in sys.platform or sys.platform.startswith("darwin"):
+    try:
+        v = sys.version_info
+        if (
+            v[0] == 1
+            or (v[0] == 2 and v[1] < 6)
+            or (v[0] == 2 and v[1] == 6 and v[2] < 5)
+        ):
+            raise Exception("Python version too old (%s)" % sys.version)
+        from twisted.internet import kqreactor
+
+        kqreactor.install()
+    except Exception as e:
+        print(f"""
 WARNING: Running on BSD or Darwin, but cannot use kqueue Twisted reactor.
 
- => %s
+ => {str(e)}
 
 To use the kqueue Twisted reactor, you will need:
 
@@ -42,34 +48,36 @@ To use the kqueue Twisted reactor, you will need:
 Note the use of >= and >.
 
 Will let Twisted choose a default reactor (potential performance degradation).
-""" % str(e)
-      pass
+""")
+        pass
 
 
 ## temporarily disable IOCP, causing problems with chopped up tests
 ##
-if False and sys.platform in ['win32']:
-   try:
-      from twisted.application.reactors import installReactor
-      installReactor("iocp")
-   except Exception, e:
-      print """
+if False and sys.platform in ["win32"]:
+    try:
+        from twisted.application.reactors import installReactor
+
+        installReactor("iocp")
+    except Exception as e:
+        print(f"""
 WARNING: Running on Windows, but cannot use IOCP Twisted reactor.
 
- => %s
+ => {str(e)}
 
 Will let Twisted choose a default reactor (potential performance degradation).
-""" % str(e)
+""")
 
-if sys.platform.startswith('linux'):
-   try:
-      from twisted.internet import epollreactor
-      epollreactor.install()
-   except Exception, e:
-      print """
+if sys.platform.startswith("linux"):
+    try:
+        from twisted.internet import epollreactor
+
+        epollreactor.install()
+    except Exception as e:
+        print(f"""
 WARNING: Running on Linux, but cannot use Epoll Twisted reactor.
 
- => %s
+ => {str(e)}
 
 Will let Twisted choose a default reactor (potential performance degradation).
-""" % str(e)
+""")

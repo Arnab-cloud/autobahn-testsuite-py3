@@ -16,42 +16,53 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
 
 ## list of some invalid close codes
-tests = [0,999,1004,1005,1006,1016,1100,2000,2999]
+tests = [0, 999, 1004, 1005, 1006, 1016, 1100, 2000, 2999]
 
 Case7_9_X = []
 
+
 def __init__(self, protocol):
-   Case.__init__(self, protocol)
+    Case.__init__(self, protocol)
+
 
 def onConnectionLost(self, failedByMe):
-      Case.onConnectionLost(self, failedByMe)
+    Case.onConnectionLost(self, failedByMe)
 
-      if self.behaviorClose == Case.WRONG_CODE:
-         self.behavior = Case.FAILED
-         self.passed = False
-         self.result = self.resultClose
+    if self.behaviorClose == Case.WRONG_CODE:
+        self.behavior = Case.FAILED
+        self.passed = False
+        self.result = self.resultClose
+
 
 def onOpen(self):
-   self.expected[Case.OK] = []
-   self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-   self.p.sendCloseFrame(self.CLOSE_CODE)
-   self.p.killAfter(1)
+    self.expected[Case.OK] = []
+    self.expectedClose = {
+        "closedByMe": True,
+        "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+        "requireClean": False,
+    }
+    self.p.sendCloseFrame(self.CLOSE_CODE)
+    self.p.killAfter(1)
+
 
 i = 1
 for s in tests:
-   DESCRIPTION = """Send close with invalid close code %d""" % s
-   EXPECTATION = """Clean close with protocol error code or drop TCP"""
-   C = type("Case7_9_%d" % i,
-            (object, Case, ),
-            {"CLOSE_CODE": s,
-             "DESCRIPTION": """%s""" % DESCRIPTION,
-             "EXPECTATION": """%s""" % EXPECTATION,
-             "__init__": __init__,
-             "onOpen": onOpen,
-             "onConnectionLost": onConnectionLost,
-             })
-   Case7_9_X.append(C)
-   i += 1
+    DESCRIPTION = f"Send close with invalid close code {s}"
+    EXPECTATION = """Clean close with protocol error code or drop TCP"""
+    C = type(
+        f"Case7_9_{i}",
+        (Case,),
+        {
+            "CLOSE_CODE": s,
+            "DESCRIPTION": DESCRIPTION,
+            "EXPECTATION": EXPECTATION,
+            "__init__": __init__,
+            "onOpen": onOpen,
+            "onConnectionLost": onConnectionLost,
+        },
+    )
+    Case7_9_X.append(C)
+    i += 1

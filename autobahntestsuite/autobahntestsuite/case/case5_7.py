@@ -16,20 +16,27 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case5_7(Case):
+    DESCRIPTION = """Send text Message fragmented into 2 fragments, one ping with payload in-between. Octets are sent in frame-wise chops."""
 
-   DESCRIPTION = """Send text Message fragmented into 2 fragments, one ping with payload in-between. Octets are sent in frame-wise chops."""
+    EXPECTATION = """A pong is received, then the message is echo'ed back to us."""
 
-   EXPECTATION = """A pong is received, then the message is echo'ed back to us."""
-
-   def onOpen(self):
-      ping_payload = "ping payload"
-      fragments = ["fragment1", "fragment2"]
-      self.expected[Case.OK] = [("pong", ping_payload), ("message", ''.join(fragments), False)]
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendFrame(opcode = 1, fin = False, payload = fragments[0], sync = True)
-      self.p.sendFrame(opcode = 9, fin = True, payload = ping_payload, sync = True)
-      self.p.sendFrame(opcode = 0, fin = True, payload = fragments[1], sync = True)
-      self.p.closeAfter(1)
+    def onOpen(self):
+        ping_payload = "ping payload"
+        fragments = ["fragment1", "fragment2"]
+        self.expected[Case.OK] = [
+            ("pong", ping_payload),
+            ("message", "".join(fragments), False),
+        ]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=1, fin=False, payload=fragments[0], sync=True)
+        self.p.sendFrame(opcode=9, fin=True, payload=ping_payload, sync=True)
+        self.p.sendFrame(opcode=0, fin=True, payload=fragments[1], sync=True)
+        self.p.closeAfter(1)

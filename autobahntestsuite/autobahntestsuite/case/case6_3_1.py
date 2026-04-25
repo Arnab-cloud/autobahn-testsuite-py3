@@ -18,27 +18,33 @@
 ##
 ###############################################################################
 
-from case import Case
 import binascii
 
+from case.case import Case
+
+
 class Case6_3_1(Case):
+    # invalid exactly on byte 12 (\xa0)
+    PAYLOAD1 = "\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5"
+    PAYLOAD2 = "\xed\xa0\x80"
+    PAYLOAD3 = "\x65\x64\x69\x74\x65\x64"
+    PAYLOAD = PAYLOAD1 + PAYLOAD2 + PAYLOAD3
 
-   # invalid exactly on byte 12 (\xa0)
-   PAYLOAD1 = '\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5'
-   PAYLOAD2 = '\xed\xa0\x80'
-   PAYLOAD3 = '\x65\x64\x69\x74\x65\x64'
-   PAYLOAD = PAYLOAD1 + PAYLOAD2 + PAYLOAD3
+    DESCRIPTION = (
+        """Send invalid UTF-8 text message unfragmented.<br><br>MESSAGE:<br>%s"""
+        % binascii.b2a_hex(PAYLOAD.encode())
+    )
 
-   DESCRIPTION = """Send invalid UTF-8 text message unfragmented.<br><br>MESSAGE:<br>%s""" % binascii.b2a_hex(PAYLOAD)
+    EXPECTATION = """The connection is failed immediately, since the payload is not valid UTF-8."""
 
-   EXPECTATION = """The connection is failed immediately, since the payload is not valid UTF-8."""
+    def onOpen(self):
 
-   def onOpen(self):
-
-      self.expected[Case.OK] = []
-      self.expectedClose = {"closedByMe": False,
-                            "closeCode": [self.p.CLOSE_STATUS_CODE_INVALID_PAYLOAD],
-                            "requireClean": False,
-                            "closedByWrongEndpointIsFatal": True}
-      self.p.sendMessage(self.PAYLOAD, isBinary = False)
-      self.p.killAfter(1)
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_INVALID_PAYLOAD],
+            "requireClean": False,
+            "closedByWrongEndpointIsFatal": True,
+        }
+        self.p.sendMessage(self.PAYLOAD, isBinary=False)
+        self.p.killAfter(1)

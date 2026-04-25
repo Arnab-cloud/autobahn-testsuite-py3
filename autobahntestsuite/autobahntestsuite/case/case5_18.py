@@ -16,17 +16,21 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case5_18(Case):
+    DESCRIPTION = """Send text Message fragmented into 2 fragments, with both frame opcodes set to text, sent in one chop."""
 
-   DESCRIPTION = """Send text Message fragmented into 2 fragments, with both frame opcodes set to text, sent in one chop."""
+    EXPECTATION = """The connection is failed immediately, since all data frames after the initial data frame must have opcode 0."""
 
-   EXPECTATION = """The connection is failed immediately, since all data frames after the initial data frame must have opcode 0."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = []
-      self.expectedClose = {"closedByMe":False,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendFrame(opcode = 1, fin = False, payload = "fragment1")
-      self.p.sendFrame(opcode = 1, fin = True, payload = "fragment2")
-      self.p.killAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+            "requireClean": False,
+        }
+        self.p.sendFrame(opcode=1, fin=False, payload="fragment1")
+        self.p.sendFrame(opcode=1, fin=True, payload="fragment2")
+        self.p.killAfter(1)

@@ -16,10 +16,11 @@
 ##
 ###############################################################################
 
-import io
-import os
+# import io
+# import os
 import re
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 LONGSDESC = """
 WebSocket protocol implementation conformance test suite.
@@ -82,8 +83,8 @@ def read_requirements(filename):
     Read requirements.txt from source or from inside a built package.
     Compatible with Python 2.7 (uses pkg_resources fallback).
     """
-    import os
     import io
+    import os
 
     here = os.path.abspath(os.path.dirname(__file__))
     candidates = [
@@ -102,9 +103,9 @@ def read_requirements(filename):
 
     # --- Fallback: load via pkg_resources (when running from wheel / installed dist) ---
     try:
-        import pkg_resources
+        from importlib import resources
 
-        data = pkg_resources.resource_string("autobahntestsuite", filename)
+        data = resources.files("autobahntestsuite").joinpath(filename).read_bytes()
         text = data.decode("utf-8")
         return [
             line.strip()

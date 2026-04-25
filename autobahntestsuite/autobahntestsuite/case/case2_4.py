@@ -16,17 +16,21 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case2_4(Case):
+    DESCRIPTION = """Send ping with binary payload of 125 octets."""
 
-   DESCRIPTION = """Send ping with binary payload of 125 octets."""
+    EXPECTATION = """Pong with payload echo'ed is sent in reply to Ping. Clean close with normal code."""
 
-   EXPECTATION = """Pong with payload echo'ed is sent in reply to Ping. Clean close with normal code."""
-
-   def onOpen(self):
-      payload = "\xfe" * 125
-      self.expected[Case.OK] = [("pong", payload)]
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendFrame(opcode = 9, payload = payload)
-      self.p.closeAfter(1)
+    def onOpen(self):
+        payload = "\xfe" * 125
+        self.expected[Case.OK] = [("pong", payload)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=9, payload=payload)
+        self.p.closeAfter(1)

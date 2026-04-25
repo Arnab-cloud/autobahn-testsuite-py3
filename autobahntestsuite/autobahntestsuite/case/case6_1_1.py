@@ -16,18 +16,20 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case6_1_1(Case):
+    DESCRIPTION = """Send text message of length 0."""
 
-   DESCRIPTION = """Send text message of length 0."""
+    EXPECTATION = """A message is echo'ed back to us (with empty payload)."""
 
-   EXPECTATION = """A message is echo'ed back to us (with empty payload)."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = [("message", "", False)]
-      self.expectedClose = {"closedByMe": True,
-                            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
-                            "requireClean": True}
-      self.p.sendFrame(opcode = 1, payload = "")
-      self.p.closeAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = [("message", "", False)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=1, payload="")
+        self.p.closeAfter(1)

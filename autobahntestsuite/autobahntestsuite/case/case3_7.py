@@ -16,16 +16,20 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case3_7(Case):
+    DESCRIPTION = """Send Close with <b>RSV = 7</b>."""
 
-   DESCRIPTION = """Send Close with <b>RSV = 7</b>."""
+    EXPECTATION = """The connection is failed immediately, since RSV must be 0."""
 
-   EXPECTATION = """The connection is failed immediately, since RSV must be 0."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = []
-      self.expectedClose = {"closedByMe":False,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendFrame(opcode = 8, rsv = 7)
-      self.p.killAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+            "requireClean": False,
+        }
+        self.p.sendFrame(opcode=8, rsv=7)
+        self.p.killAfter(1)

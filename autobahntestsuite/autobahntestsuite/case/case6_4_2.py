@@ -19,43 +19,49 @@
 ###############################################################################
 
 import binascii
-from case import Case
-from case6_4_1 import Case6_4_1
+
 from autobahn.websocket.protocol import WebSocketProtocol
+from case.case import Case
+from case.case6_4_1 import Case6_4_1
 
 
 class Case6_4_2(Case6_4_1):
-
-   DESCRIPTION = """Same as Case 6.4.1, but in 2nd frame, we send only up to and including the octet making the complete payload invalid.
+    DESCRIPTION = """Same as Case 6.4.1, but in 2nd frame, we send only up to and including the octet making the complete payload invalid.
 <br><br>MESSAGE PARTS:<br>
 PART1 = %s<br>
 PART2 = %s<br>
 PART3 = %s<br>
-""" % (binascii.b2a_hex(Case6_4_1.PAYLOAD[:12]), binascii.b2a_hex(Case6_4_1.PAYLOAD[12]), binascii.b2a_hex(Case6_4_1.PAYLOAD[13:]))
+""" % (
+        binascii.b2a_hex(Case6_4_1.PAYLOAD[:12].encode()),
+        binascii.b2a_hex(Case6_4_1.PAYLOAD[12].encode()),
+        binascii.b2a_hex(Case6_4_1.PAYLOAD[13:].encode()),
+    )
 
-   EXPECTATION = """The first frame is accepted, we expect to timeout on the first wait. The 2nd frame should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8."""
+    EXPECTATION = """The first frame is accepted, we expect to timeout on the first wait. The 2nd frame should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8."""
 
-   def onOpen(self):
+    def onOpen(self):
 
-      self.expected[Case.OK] = [("timeout", "A")]
-      self.expected[Case.NON_STRICT] = [("timeout", "A"), ("timeout", "B")]
+        self.expected[Case.OK] = [("timeout", "A")]
+        self.expected[Case.NON_STRICT] = [("timeout", "A"), ("timeout", "B")]
 
-      self.expectedClose = {"closedByMe": False,
-                            "closeCode": [self.p.CLOSE_STATUS_CODE_INVALID_PAYLOAD],
-                            "requireClean": False,
-                            "closedByWrongEndpointIsFatal": True}
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_INVALID_PAYLOAD],
+            "requireClean": False,
+            "closedByWrongEndpointIsFatal": True,
+        }
 
-      self.p.sendFrame(opcode = 1, fin = False, payload = self.PAYLOAD[:12])
-      self.p.continueLater(1, self.part2, "A")
+        self.p.sendFrame(opcode=1, fin=False, payload=self.PAYLOAD[:12])
+        self.p.continueLater(1, self.part2, "A")
 
-   def part2(self):
-      if self.p.state == WebSocketProtocol.STATE_OPEN:
-         self.received.append(("timeout", "A"))
-         self.p.sendFrame(opcode = 0, fin = False, payload = self.PAYLOAD[12])
-         self.p.continueLater(1, self.part3, "B")
+    def part2(self):
+        if self.p.state == WebSocketProtocol.STATE_OPEN:
+            self.received.append(("timeout", "A"))
+            self.p.sendFrame(opcode=0, fin=False, payload=self.PAYLOAD[12])
+            self.p.continueLater(1, self.part3, "B")
 
-   def part3(self):
-      if self.p.state == WebSocketProtocol.STATE_OPEN:
-         self.received.append(("timeout", "B"))
-         self.p.sendFrame(opcode = 0, fin = True, payload = self.PAYLOAD[13:])
-         self.p.killAfter(1)
+    def part3(self):
+        if self.p.state == WebSocketProtocol.STATE_OPEN:
+            self.received.append(("timeout", "B"))
+            self.p.sendFrame(opcode=0, fin=True, payload=self.PAYLOAD[13:])
+            self.p.killAfter(1)

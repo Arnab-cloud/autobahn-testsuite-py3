@@ -16,16 +16,20 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case2_1(Case):
+    DESCRIPTION = """Send ping without payload."""
 
-   DESCRIPTION = """Send ping without payload."""
+    EXPECTATION = """Pong (with empty payload) is sent in reply to Ping. Clean close with normal code."""
 
-   EXPECTATION = """Pong (with empty payload) is sent in reply to Ping. Clean close with normal code."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = [("pong", "")]
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendFrame(opcode = 9)
-      self.p.closeAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = [("pong", "")]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=9)
+        self.p.closeAfter(1)

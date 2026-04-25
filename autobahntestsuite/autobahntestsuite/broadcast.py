@@ -16,109 +16,111 @@
 ##
 ###############################################################################
 
-__all__ = ['startClient', 'startServer']
+__all__ = ["startClient", "startServer"]
 
-import pkg_resources
-import os, socket, binascii
+import binascii
+import importlib.resources
 
+# import pkg_resources
+import os
+import socket
+
+from autobahn.twisted.websocket import (
+    WebSocketClientFactory,
+    WebSocketClientProtocol,
+    WebSocketServerFactory,
+    WebSocketServerProtocol,
+    connectWS,
+    listenWS,
+)
 from twisted.internet import reactor
 from twisted.web.server import Site
 from twisted.web.static import File
 
-from autobahn.twisted.websocket import connectWS, \
-                                       listenWS, \
-                                       WebSocketClientFactory, \
-                                       WebSocketClientProtocol, \
-                                       WebSocketServerFactory, \
-                                       WebSocketServerProtocol
-
 
 class BroadcastServerProtocol(WebSocketServerProtocol):
+    def onOpen(self):
+        self.factory.register(self)
 
-   def onOpen(self):
-      self.factory.register(self)
+    def onClose(self, wasClean, code, reason):
+        self.factory.unregister(self)
 
-   def onClose(self, wasClean, code, reason):
-      self.factory.unregister(self)
-
-   def onMessage(self, payload, isBinary):
-      self.factory.broadcast(payload, isBinary)
-
+    def onMessage(self, payload, isBinary):
+        self.factory.broadcast(payload, isBinary)
 
 
 class BroadcastServerFactory(WebSocketServerFactory):
+    protocol = BroadcastServerProtocol
 
-   protocol = BroadcastServerProtocol
+    def __init__(self, url, debug=False):
+        WebSocketServerFactory.__init__(self, url, debug=debug, debugCodePaths=debug)
 
-   def __init__(self, url, debug = False):
-      WebSocketServerFactory.__init__(self, url, debug = debug, debugCodePaths = debug)
+    def startFactory(self):
+        self.clients = set()
+        self.tickcount = 0
+        self.tick()
 
-   def startFactory(self):
-      self.clients = set()
-      self.tickcount = 0
-      self.tick()
+    def register(self, client):
+        self.clients.add(client)
 
-   def register(self, client):
-      self.clients.add(client)
+    def unregister(self, client):
+        self.clients.discard(client)
 
-   def unregister(self, client):
-      self.clients.discard(client)
+    def broadcast(self, payload, isBinary=False):
+        for c in self.clients:
+            c.sendMessage(payload, isBinary)
 
-   def broadcast(self, payload, isBinary = False):
-      for c in self.clients:
-         c.sendMessage(payload, isBinary)
-
-   def tick(self):
-      self.tickcount += 1
-      self.broadcast("tick %d" % self.tickcount)
-      reactor.callLater(1, self.tick)
-
+    def tick(self):
+        self.tickcount += 1
+        self.broadcast("tick %d" % self.tickcount)
+        reactor.callLater(1, self.tick)
 
 
 class BroadcastClientProtocol(WebSocketClientProtocol):
+    def sendHello(self):
+        self.sendMessage("hello from %s[%d]" % (socket.gethostname(), os.getpid()))
+        reactor.callLater(2, self.sendHello)
 
-   def sendHello(self):
-      self.sendMessage("hello from %s[%d]" % (socket.gethostname(), os.getpid()))
-      reactor.callLater(2, self.sendHello)
+    def onOpen(self):
+        self.sendHello()
 
-   def onOpen(self):
-      self.sendHello()
-
-   def onMessage(self, payload, isBinary):
-      if isBinary:
-         print "received: ", binascii.b2a_hex(payload)
-      else:
-         print "received: ", payload
-
+    def onMessage(self, payload, isBinary):
+        if isBinary:
+            print("received: ", binascii.b2a_hex(payload))
+        else:
+            print("received: ", payload)
 
 
 class BroadcastClientFactory(WebSocketClientFactory):
+    protocol = BroadcastClientProtocol
 
-   protocol = BroadcastClientProtocol
-
-   def __init__(self, url, debug = False):
-      WebSocketClientFactory.__init__(self, url, debug = debug, debugCodePaths = debug)
-
+    def __init__(self, url, debug=False):
+        WebSocketClientFactory.__init__(self, url, debug=debug, debugCodePaths=debug)
 
 
-def startClient(wsuri, debug = False):
-   factory = BroadcastClientFactory(wsuri, debug)
-   connectWS(factory)
-   return True
+def startClient(wsuri, debug=False):
+    factory = BroadcastClientFactory(wsuri, debug)
+    connectWS(factory)
+    return True
 
 
+def startServer(wsuri, webport, sslKey=None, sslCert=None, debug=False):
+    factory = BroadcastServerFactory(wsuri, debug)
+    if sslKey and sslCert:
+        sslContext = ssl.DefaultOpenSSLContextFactory(sslKey, sslCert)
+    else:
+        sslContext = None
+    listenWS(factory, sslContext)
 
-def startServer(wsuri, webport, sslKey = None, sslCert = None, debug = False):
-   factory = BroadcastServerFactory(wsuri, debug)
-   if sslKey and sslCert:
-      sslContext = ssl.DefaultOpenSSLContextFactory(sslKey, sslCert)
-   else:
-      sslContext = None
-   listenWS(factory, sslContext)
+    if webport:
+        with importlib.resources.as_file(
+            importlib.resources.files("autobahntestsuite").joinpath(
+                "web/broadcastserver"
+            )
+        ) as path:
+            # webdir = File(pkg_resources.resource_filename("autobahntestsuite", "web/broadcastserver"))
+            webdir = File(str(path))
+            web = Site(webdir)
+            reactor.listenTCP(webport, web)
 
-   if webport:
-      webdir = File(pkg_resources.resource_filename("autobahntestsuite", "web/broadcastserver"))
-      web = Site(webdir)
-      reactor.listenTCP(webport, web)
-
-   return True
+    return True

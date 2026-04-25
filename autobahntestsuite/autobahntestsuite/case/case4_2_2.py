@@ -16,16 +16,22 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case4_2_2(Case):
+    DESCRIPTION = (
+        """Send frame with reserved control <b>Opcode = 12</b> and non-empty payload."""
+    )
 
-   DESCRIPTION = """Send frame with reserved control <b>Opcode = 12</b> and non-empty payload."""
+    EXPECTATION = """The connection is failed immediately."""
 
-   EXPECTATION = """The connection is failed immediately."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = []
-      self.expectedClose = {"closedByMe":False,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendFrame(opcode = 12, payload = "reserved opcode payload")
-      self.p.killAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+            "requireClean": False,
+        }
+        self.p.sendFrame(opcode=12, payload="reserved opcode payload")
+        self.p.killAfter(1)

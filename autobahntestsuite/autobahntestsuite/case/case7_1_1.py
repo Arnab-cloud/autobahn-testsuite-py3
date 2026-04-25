@@ -16,29 +16,31 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case7_1_1(Case):
+    DESCRIPTION = """Send a message followed by a close frame"""
 
-   DESCRIPTION = """Send a message followed by a close frame"""
+    EXPECTATION = """Echoed message followed by clean close with normal code."""
 
-   EXPECTATION = """Echoed message followed by clean close with normal code."""
+    def onConnectionLost(self, failedByMe):
+        Case.onConnectionLost(self, failedByMe)
 
-   def onConnectionLost(self, failedByMe):
-      Case.onConnectionLost(self, failedByMe)
-      
-      if self.behaviorClose == Case.WRONG_CODE:
-         self.behavior = Case.FAILED
-         self.passed = False
-         self.result = self.resultClose
+        if self.behaviorClose == Case.WRONG_CODE:
+            self.behavior = Case.FAILED
+            self.passed = False
+            self.result = self.resultClose
 
-   def onOpen(self):
-      payload = "Hello World!"
-      self.expected[Case.OK] = [("message", payload, False)]      
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendFrame(opcode = 1, payload = payload)
-      #self.p.sendClose(self.p.CLOSE_STATUS_CODE_NORMAL);
-      #self.p.sendFrame(opcode = 1, payload = payload)
-      self.p.killAfter(1)
-
-      
+    def onOpen(self):
+        payload = "Hello World!"
+        self.expected[Case.OK] = [("message", payload, False)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=1, payload=payload)
+        # self.p.sendClose(self.p.CLOSE_STATUS_CODE_NORMAL);
+        # self.p.sendFrame(opcode = 1, payload = payload)
+        self.p.killAfter(1)

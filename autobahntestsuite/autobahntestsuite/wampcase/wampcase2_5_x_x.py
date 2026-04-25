@@ -137,19 +137,18 @@ class WampCase4_1_1(WampCase):
          log("Continuing test ..")
 
          if False:
-            print
-            print "Expected:"
+            print("\nExpected:")
             for r in result.expected:
-               print r
+               print (r)
                pprint(result.expected[r])
-               print
+               print()
 
-            print
-            print "Observed:"
+            print()
+            print("Observed:")
             for r in result.observed:
-               print r
+               print (r)
                pprint(result.observed[r])
-               print
+               print()
 
          result.passed = json.dumps(result.observed) == json.dumps(result.expected)
 

@@ -16,21 +16,23 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case6_1_3(Case):
+    DESCRIPTION = """Send fragmented text message, 3 fragments, first and last of length 0, middle non-empty."""
 
-   DESCRIPTION = """Send fragmented text message, 3 fragments, first and last of length 0, middle non-empty."""
+    EXPECTATION = """A message is echo'ed back to us (with payload = payload of middle fragment)."""
 
-   EXPECTATION = """A message is echo'ed back to us (with payload = payload of middle fragment)."""
-
-   def onOpen(self):
-      payload = "middle frame payload"
-      self.expected[Case.OK] = [("message", payload, False)]
-      self.expectedClose = {"closedByMe": True,
-                            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
-                            "requireClean": True}
-      self.p.sendFrame(opcode = 1, fin = False, payload = "")
-      self.p.sendFrame(opcode = 0, fin = False, payload = payload)
-      self.p.sendFrame(opcode = 0, fin = True, payload = "")
-      self.p.closeAfter(1)
+    def onOpen(self):
+        payload = "middle frame payload"
+        self.expected[Case.OK] = [("message", payload, False)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=1, fin=False, payload="")
+        self.p.sendFrame(opcode=0, fin=False, payload=payload)
+        self.p.sendFrame(opcode=0, fin=True, payload="")
+        self.p.closeAfter(1)

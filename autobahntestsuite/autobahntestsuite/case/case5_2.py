@@ -16,17 +16,21 @@
 ##
 ###############################################################################
 
-from case import Case
+from case.case import Case
+
 
 class Case5_2(Case):
+    DESCRIPTION = """Send Pong fragmented into 2 fragments."""
 
-   DESCRIPTION = """Send Pong fragmented into 2 fragments."""
+    EXPECTATION = """Connection is failed immediately, since control message MUST NOT be fragmented."""
 
-   EXPECTATION = """Connection is failed immediately, since control message MUST NOT be fragmented."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = []
-      self.expectedClose = {"closedByMe":False,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendFrame(opcode = 10, fin = False, payload = "fragment1")
-      self.p.sendFrame(opcode = 0, fin = True, payload = "fragment2")
-      self.p.killAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+            "requireClean": False,
+        }
+        self.p.sendFrame(opcode=10, fin=False, payload="fragment1")
+        self.p.sendFrame(opcode=0, fin=True, payload="fragment2")
+        self.p.killAfter(1)
