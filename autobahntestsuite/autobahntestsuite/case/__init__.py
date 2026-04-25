@@ -17,6 +17,7 @@
 ###############################################################################
 
 
+from case.case import Case
 from case.case1_1_1 import Case1_1_1
 from case.case1_1_2 import Case1_1_2
 from case.case1_1_3 import Case1_1_3

@@ -122,7 +122,7 @@ class MyTopicService:
         print("client wants to publish to %s%s" % (topicUriPrefix, topicUriSuffix))
         try:
             i = int(topicUriSuffix)
-            if type(event) == dict and event.has_key("count"):
+            if type(event) == dict and event.get("count"):
                 if event["count"] > 0:
                     self.serial += 1
                     event["serial"] = self.serial
@@ -156,7 +156,7 @@ class TesteeWampServerProtocol(wamp.WampServerProtocol):
         """
         Simulate a server initiated event controlled by the tester.
         """
-        if options.has_key("exclude"):
+        if options.get("exclude"):
             exclude = options["exclude"]
         else:
             excludeMe = options.get("excludeMe", None)

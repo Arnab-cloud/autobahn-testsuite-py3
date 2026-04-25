@@ -75,14 +75,14 @@ class TestDb:
         self._cs = {}
         self._css = {}
         for cs in self._caseSets:
-            if not self._cs.has_key(cs.CaseSetName):
+            if not self._cs.get(cs.CaseSetName):
                 self._cs[cs.CaseSetName] = {}
                 self._css[cs.CaseSetName] = cs
             else:
                 raise Exception("duplicate case set name")
             for c in cs.Cases:
                 idx = tuple(c.index)
-                if not self._cs[cs.CaseSetName].has_key(idx):
+                if not self._cs[cs.CaseSetName].get(idx):
                     self._cs[cs.CaseSetName][idx] = c
                 else:
                     raise Exception("duplicate case index")
@@ -214,7 +214,7 @@ class TestDb:
                 validTo, mode, caseset, spec = row
                 if validTo is not None:
                     raise Exception("test spec no longer active")
-                if not self._css.has_key(caseset):
+                if not self._css.get(caseset):
                     raise Exception("case set %s not loaded in database" % caseset)
                 spec = json.loads(spec)
                 res = self._css[caseset].generateCasesByTestee(spec)
@@ -345,31 +345,31 @@ class TestDb:
                     raise Exception("invalid attribute '%s' in %s" % (att, signame))
 
             for key, (required, atypes) in sig.items():
-                if required and not obj.has_key(key):
+                if required and not obj.get(key):
                     raise Exception(
                         "missing mandatory %s attribute '%s'" % (signame, key)
                     )
-                if obj.has_key(key) and type(obj[key]) not in atypes:
+                if obj.get(key) and type(obj[key]) not in atypes:
                     raise Exception(
                         "invalid type '%s' for %s attribute '%s'"
                         % (type(sig[key]), signame, key)
                     )
 
         verifyDict(spec, sig_spec, "test specification")
-        if spec.has_key("options"):
+        if spec.get("options"):
             verifyDict(spec["options"], sig_spec_options, "test options")
 
         for testee in spec["testees"]:
             verifyDict(testee, sig_spec_testee, "testee description")
 
-            if testee.has_key("auth"):
+            if testee.get("auth"):
                 verifyDict(
                     testee["auth"],
                     sig_spec_testee_auth,
                     "testee authentication credentials",
                 )
 
-            if testee.has_key("options"):
+            if testee.get("options"):
                 verifyDict(testee["options"], sig_spec_testee_options, "testee options")
 
         if spec["mode"] not in sig_spec_modes:
@@ -607,10 +607,10 @@ class TestDb:
 
                 id, testee, passed, duration = row[0], row[1], row[7], row[8]
 
-                if not res.has_key(index):
+                if not res.get(index):
                     res[index] = {}
 
-                if res[index].has_key(testee):
+                if res[index].get(testee):
                     raise Exception("logic error")
 
                 res[index][testee] = {"id": id, "passed": passed, "duration": duration}

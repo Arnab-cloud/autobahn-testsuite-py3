@@ -112,9 +112,9 @@ class FuzzingWampClient(object):
       for obj in spec['testees']:
          testee = Testee(**obj)
          cases = casesByTestee.get(testee.name, [])
-         if testee.options.has_key('randomize') and testee.options['randomize'] is not None:
+         if testee.options.get('randomize') and testee.options['randomize'] is not None:
             randomize = testee.options['randomize']
-         elif spec.has_key('options') and spec['options'].has_key('randomize') and spec['options']['randomize'] is not None:
+         elif spec.get('options') and spec['options'].has_key('randomize') and spec['options']['randomize'] is not None:
             randomize = spec['options']['randomize']
          else:
             randomize = False

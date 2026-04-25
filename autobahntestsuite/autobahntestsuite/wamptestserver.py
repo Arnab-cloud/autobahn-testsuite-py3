@@ -106,7 +106,7 @@ class KeyValue:
             if value is not None:
                 self.store[k] = value
             else:
-                if self.store.has_key(k):
+                if self.store.get(k):
                     del self.store[k]
         else:
             self.store.clear()
@@ -197,7 +197,7 @@ class MyTopicService:
         print("client wants to publish to %s%s" % (topicUriPrefix, topicUriSuffix))
         try:
             i = int(topicUriSuffix)
-            if type(event) == dict and event.has_key("count"):
+            if type(event) == dict and event.get("count"):
                 if event["count"] > 0:
                     self.serial += 1
                     event["serial"] = self.serial

@@ -199,16 +199,17 @@ class WsTestOptions(usage.Options):
                 raise usage.UsageError("invalid Web port %s" % self["webport"])
 
 
-class WsTestRunner(object):
+# class WsTestRunner(object):
+class WsTestRunner:
     """
     Testsuite driver.
     """
 
-    def __init__(self, options, spec=None):
+    def __init__(self, options: WsTestOptions, spec: dict | None = None):
         self.options = options
         self.spec = spec
 
-        self.debug = self.options.get("debug", False)
+        self.debug: bool = self.options.get("debug", False)
         if self.debug:
             log.startLogging(sys.stdout)
 
@@ -219,87 +220,92 @@ class WsTestRunner(object):
         Start mode specific services.
         """
         print()
-        print("Using Twisted reactor class %s" % str(reactor.__class__))
-        print("Using UTF8 Validator class %s" % str(Utf8Validator))
-        print("Using XOR Masker classes %s" % str(XorMaskerNull))
+        print("Using Twisted reactor class", type(reactor))
+        print("Using UTF8 Validator class", Utf8Validator)
+        print("Using XOR Masker classes", XorMaskerNull)
         # print( "Using JSON processor module '%s'" % str(autobahn.wamp.json_lib.__name__))
         print()
 
-        if self.mode == "import":
-            return self.startImportSpec(self.options["spec"])
+        match self.mode:
+            case "import":
+                return self.startImportSpec(self.options["spec"])
 
-        elif self.mode == "export":
-            return self.startExportSpec(
-                self.options["testset"], self.options.get("spec", None)
-            )
+            case "export":
+                return self.startExportSpec(
+                    self.options["testset"], self.options.get("spec", None)
+                )
 
-        elif self.mode == "fuzzingwampclient":
-            return self.startFuzzingWampClient(self.options["testset"])
+            case "fuzzingwampclient":
+                return self.startFuzzingWampClient(self.options["testset"])
 
-        elif self.mode == "web":
-            return self.startWeb(debug=self.debug)
+            case "web":
+                return self.startWeb(debug=self.debug)
 
-        elif self.mode == "testeeclient":
-            return testee.startClient(
-                self.options["wsuri"], ident=self.options["ident"], debug=self.debug
-            )
+            case "testeeclient":
+                return testee.startClient(
+                    self.options["wsuri"], ident=self.options["ident"], debug=self.debug
+                )
 
-        elif self.mode == "testeeserver":
-            return testee.startServer(self.options["wsuri"], debug=self.debug)
+            case "testeeserver":
+                return testee.startServer(self.options["wsuri"], debug=self.debug)
 
-        elif self.mode == "broadcastclient":
-            return broadcast.startClient(self.options["wsuri"], debug=self.debug)
+            case "broadcastclient":
+                return broadcast.startClient(self.options["wsuri"], debug=self.debug)
 
-        elif self.mode == "broadcastserver":
-            return broadcast.startServer(
-                self.options["wsuri"], self.options["webport"], debug=self.debug
-            )
+            case "broadcastserver":
+                return broadcast.startServer(
+                    self.options["wsuri"], self.options["webport"], debug=self.debug
+                )
 
-        elif self.mode == "echoclient":
-            return echo.startClient(self.options["wsuri"], debug=self.debug)
+            case "echoclient":
+                return echo.startClient(self.options["wsuri"], debug=self.debug)
 
-        elif self.mode == "echoserver":
-            return echo.startServer(
-                self.options["wsuri"], self.options["webport"], debug=self.debug
-            )
+            case "echoserver":
+                return echo.startServer(
+                    self.options["wsuri"], self.options["webport"], debug=self.debug
+                )
 
-        elif self.mode == "fuzzingclient":
-            # allow overriding servers from command line option, providing 1 server
-            # this is semi-useful, as you cannot accumulate a combined report for
-            # multiple servers by running wstest over and over again. the generated
-            # report is only for the last invocation - it would require a massive
-            # code restructering / rewriting to change that. no time for that unfort.
-            servers = self.spec.get("servers", [])
-            if len(servers) == 0:
-                self.spec["servers"] = [{"url": self.options["wsuri"]}]
-            return fuzzing.startClient(self.spec, debug=self.debug)
+            case "fuzzingclient":
+                # allow overriding servers from command line option, providing 1 server
+                # this is semi-useful, as you cannot accumulate a combined report for
+                # multiple servers by running wstest over and over again. the generated
+                # report is only for the last invocation - it would require a massive
+                # code restructering / rewriting to change that. no time for that unfort.
 
-        elif self.mode == "fuzzingserver":
-            return fuzzing.startServer(
-                self.spec, self.options["webport"], debug=self.debug
-            )
+                if self.spec is None:
+                    self.spec = {}
 
-        elif self.mode == "wsperfcontrol":
-            return wsperfcontrol.startClient(
-                self.options["wsuri"], self.spec, debug=self.debug
-            )
+                servers = self.spec.get("servers", [])
+                if len(servers) == 0:
+                    self.spec["servers"] = [{"url": self.options["wsuri"]}]
+                return fuzzing.startClient(self.spec, debug=self.debug)
 
-        # elif self.mode == "wsperfmaster":
-        #     return wsperfmaster.startServer(self.options["webport"], debug=self.debug)
+            case "fuzzingserver":
+                return fuzzing.startServer(
+                    self.spec, self.options["webport"], debug=self.debug
+                )
 
-        elif self.mode == "massconnect":
-            return massconnect.startClient(self.spec, debug=self.debug)
+            case "wsperfcontrol":
+                return wsperfcontrol.startClient(
+                    self.options["wsuri"], self.spec, debug=self.debug
+                )
 
-        elif self.mode == "serializer":
-            return serializer.start(
-                outfilename=self.options["outfile"], debug=self.debug
-            )
+            # case "wsperfmaster":
+            #     return wsperfmaster.startServer(self.options["webport"], debug=self.debug)
 
-        else:
-            raise Exception("no mode '%s'" % self.mode)
+            case "massconnect":
+                return massconnect.startClient(self.spec, debug=self.debug)
+
+            case "serializer":
+                return serializer.start(
+                    outfilename=self.options["outfile"], debug=self.debug
+                )
+
+            case _:
+                raise Exception("no mode:", self.mode)
 
 
-def start(options, spec=None):
+def start(options: WsTestOptions, spec: dict | None = None):
     """
     Actually startup a wstest run.
 
@@ -381,6 +387,9 @@ def run():
         spec_filename = os.path.abspath(options["spec"])
         print("Loading spec from %s" % spec_filename)
         spec = json.loads(open(spec_filename).read())
+        if not isinstance(spec, dict):
+            print("invalid spec")
+            return
 
     else:
         ## mode does not rely on spec

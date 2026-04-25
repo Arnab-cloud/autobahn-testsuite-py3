@@ -76,7 +76,7 @@ class WampCase4_1_1_Protocol(WampCaseProtocol):
       expected = self.factory.result.expected
       rcnt = 0
       for e in expected:
-         if expected[e].has_key(topic):
+         if expected[e].get(topic):
             expected[e][topic] += 1
             rcnt += 1
       self.factory.totalExpected += rcnt
@@ -84,7 +84,7 @@ class WampCase4_1_1_Protocol(WampCaseProtocol):
 
    def onEvent(self, topic, event):
       observed = self.factory.result.observed[self.session_id]
-      if not observed.has_key(topic):
+      if not observed.get(topic):
          observed[topic] = 0
       observed[topic] += 1
       self.factory.totalObserved += 1

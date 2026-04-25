@@ -91,37 +91,37 @@ class WsPerfControlProtocol(WebSocketClientProtocol):
                             "quantile_count": testset["options"]["quantile_count"],
                             "rtts": "true" if testset["options"]["rtts"] else "false",
                             "count": case["count"]
-                            if case.has_key("count")
+                            if case.get("count")
                             else testset["options"]["count"],
                             "size": case["size"]
-                            if case.has_key("size")
+                            if case.get("size")
                             else testset["options"]["size"],
                             "timeout": case["timeout"]
-                            if case.has_key("timeout")
+                            if case.get("timeout")
                             else testset["options"]["timeout"],
                             "binary": "true"
                             if (
                                 case["binary"]
-                                if case.has_key("binary")
+                                if case.get("binary")
                                 else testset["options"]["binary"]
                             )
                             else "false",
                             "sync": "true"
                             if (
                                 case["sync"]
-                                if case.has_key("sync")
+                                if case.get("sync")
                                 else testset["options"]["sync"]
                             )
                             else "false",
                             "correctness": "exact"
                             if (
                                 case["verify"]
-                                if case.has_key("verify")
+                                if case.get("verify")
                                 else testset["options"]["verify"]
                             )
                             else "length",
                             "count": case["count"]
-                            if case.has_key("count")
+                            if case.get("count")
                             else testset["options"]["count"],
                         }
 
@@ -150,19 +150,19 @@ class WsPerfControlProtocol(WebSocketClientProtocol):
             self.pp.pprint(self.testresults)
 
         for testset in self.testsets:
-            if testset[0]["options"].has_key("outfile"):
+            if testset[0]["options"].get("outfile"):
                 outfilename = testset[0]["options"]["outfile"]
                 outfile = open(outfilename, "w")
             else:
                 outfilename = None
                 outfile = sys.stdout
 
-            if testset[0]["options"].has_key("digits"):
+            if testset[0]["options"].get("digits"):
                 digits = testset[0]["options"]["digits"]
             else:
                 digits = 0
 
-            if testset[0]["options"].has_key("sep"):
+            if testset[0]["options"].get("sep"):
                 sep = testset[0]["options"]["sep"]
             else:
                 sep = "\t"
@@ -224,7 +224,7 @@ class WsPerfControlProtocol(WebSocketClientProtocol):
                         )
                         for i in xrange(quantile_count):
                             outfile.write(sep)
-                            if result["data"].has_key("quantiles"):
+                            if result["data"].get("quantiles"):
                                 outfile.write(
                                     self.toMicroSec(result["data"]["quantiles"][i][1])
                                 )

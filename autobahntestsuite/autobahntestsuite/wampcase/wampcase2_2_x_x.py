@@ -395,7 +395,7 @@ class WampCase2_2_x_x_Protocol(WampCraClientProtocol):
                 % (topic, event),
             )
         )
-        if not self.test.result.observed.has_key(self.session_id):
+        if not self.test.result.observed.get(self.session_id):
             self.test.result.observed[self.session_id] = []
         self.test.result.observed[self.session_id].append((topic, event))
 
@@ -484,9 +484,9 @@ class WampCase2_2_x_x_Base:
 
         self._uriSuffix = "#" + str(random.randint(0, 1000000))
 
-        if self.testee.options.has_key("rtt"):
+        if self.testee.options.get("rtt"):
             self._rtt = self.testee.options["rtt"]
-        elif self.spec.has_key("options") and self.spec["options"].has_key("rtt"):
+        elif self.spec.get("options") and self.spec["options"].has_key("rtt"):
             self._rtt = self.spec["options"]["rtt"]
         else:
             self._rtt = 0.2

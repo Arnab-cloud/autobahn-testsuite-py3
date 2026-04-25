@@ -163,11 +163,11 @@ class WsPerfMasterFactory(WebSocketServerFactory):
         self.workerRunsToRuns = {}
 
     def addSlave(self, proto, id, host, port, version, num_workers, ident):
-        if not self.protoToSlaves.has_key(proto):
+        if not self.protoToSlaves.get(proto):
             self.protoToSlaves[proto] = id
         else:
             raise Exception("logic error - duplicate proto in addSlave")
-        if not self.slavesToProtos.has_key(id):
+        if not self.slavesToProtos.get(id):
             self.slavesToProtos[id] = proto
         else:
             raise Exception("logic error - duplicate id in addSlave")
@@ -182,12 +182,12 @@ class WsPerfMasterFactory(WebSocketServerFactory):
         self.uiFactory.slaveConnected(id, host, port, version, num_workers, ident)
 
     def removeSlave(self, proto):
-        if self.protoToSlaves.has_key(proto):
+        if self.protoToSlaves.get(proto):
             id = self.protoToSlaves[proto]
             del self.protoToSlaves[proto]
-            if self.slavesToProtos.has_key(id):
+            if self.slavesToProtos.get(id):
                 del self.slavesToProtos[id]
-            if self.slaves.has_key(id):
+            if self.slaves.get(id):
                 del self.slaves[id]
             self.uiFactory.slaveDisconnected(id)
 

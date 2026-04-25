@@ -144,9 +144,9 @@ class WampCase:
 
         self._uriSuffix = "#" + str(random.randint(0, 1000000))
 
-        if self.testee.options.has_key("rtt"):
+        if self.testee.options.get("rtt"):
             self._rtt = self.testee.options["rtt"]
-        elif self.spec.has_key("options") and self.spec["options"].has_key("rtt"):
+        elif self.spec.get("options") and self.spec["options"].has_key("rtt"):
             self._rtt = self.spec["options"]["rtt"]
         else:
             self._rtt = 0.2
