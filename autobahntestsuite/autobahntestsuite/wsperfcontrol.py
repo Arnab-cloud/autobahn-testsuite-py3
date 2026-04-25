@@ -186,7 +186,7 @@ class WsPerfControlProtocol(WebSocketClientProtocol):
 
                 quantile_count = testset[0]["options"]["quantile_count"]
 
-                for i in xrange(quantile_count):
+                for i in range(quantile_count):
                     outfile.write(sep)
                     outfile.write("q%d" % i)
                 outfile.write("\n")
@@ -222,7 +222,7 @@ class WsPerfControlProtocol(WebSocketClientProtocol):
                                 ]
                             )
                         )
-                        for i in xrange(quantile_count):
+                        for i in range(quantile_count):
                             outfile.write(sep)
                             if result["data"].get("quantiles"):
                                 outfile.write(

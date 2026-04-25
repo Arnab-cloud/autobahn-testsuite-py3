@@ -240,7 +240,7 @@ class TestDb:
             now = utcnow()
 
             ci = []
-            for i in xrange(5):
+            for i in range(5):
                 if len(testCase.index) > i:
                     ci.append(testCase.index[i])
                 else:

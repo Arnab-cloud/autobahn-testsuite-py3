@@ -499,7 +499,7 @@ class WampCase2_2_x_x_Base:
         peersready = []
         peersgone = []
         i = 1
-        for peerIndex in xrange(len(self.params.peers)):
+        for peerIndex in range(len(self.params.peers)):
             ready = Deferred()
             gone = Deferred()
             client = WampCase2_2_x_x_Factory(self, peerIndex, ready, gone)

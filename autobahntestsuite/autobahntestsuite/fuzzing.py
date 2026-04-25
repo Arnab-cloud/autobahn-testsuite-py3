@@ -92,20 +92,28 @@ class FuzzingProtocol:
 
     MAX_WIRE_LOG_DATA = 256
 
+    def __init__(self):
+        self.case = None
+        self.runCase = None
+        self.caseAgent = None
+        self.caseStarted = None
+        self.connectionWasOpen = None
+        self.shutdownOnComplete = None
+
     def connectionMade(self):
 
-        attrs = [
-            "case",
-            "runCase",
-            "caseAgent",
-            "caseStarted",
-            "connectionWasOpen",
-            "shutdownOnComplete",
-        ]
+        # attrs = [
+        #     "case",
+        #     "runCase",
+        #     "caseAgent",
+        #     "caseStarted",
+        #     "connectionWasOpen",
+        #     "shutdownOnComplete",
+        # ]
 
-        for attr in attrs:
-            if not hasattr(self, attr):
-                setattr(self, attr, None)
+        # for attr in attrs:
+        #     if not hasattr(self, attr):
+        #         setattr(self, attr, None)
 
         # self.case = None
         # self.runCase = None
