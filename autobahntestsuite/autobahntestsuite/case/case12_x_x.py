@@ -29,8 +29,12 @@ import hashlib
 import os
 from importlib import resources
 
-# import pkg_resources
-from autobahn.websocket.compress import *
+from autobahn.websocket.compress import (
+    PerMessageDeflateOffer,
+    PerMessageDeflateOfferAccept,
+    PerMessageDeflateResponse,
+    PerMessageDeflateResponseAccept,
+)
 from case.case import Case
 
 ## list of (payload length, message count, case timeout, auto-fragment size)
