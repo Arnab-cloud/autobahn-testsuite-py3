@@ -110,34 +110,19 @@ class FuzzingProtocol:
 
     MAX_WIRE_LOG_DATA = 256
 
-    def __init__(self):
-        self.case = None
-        self.runCase = None
-        self.caseAgent = None
-        self.caseStarted = None
-        self.connectionWasOpen = None
-        self.shutdownOnComplete = None
-
     def connectionMade(self):
-
-        print("fuzzing connection made called")
-        # attrs = [
-        #     "case",
-        #     "runCase",
-        #     "caseAgent",
-        #     "caseStarted",
-        #     "connectionWasOpen",
-        #     "shutdownOnComplete",
-        # ]
-
-        # for attr in attrs:
-        #     if not hasattr(self, attr):
-        #         setattr(self, attr, None)
-
-        # self.case = None
-        # self.runCase = None
-        # self.caseAgent = None
-        # self.caseStarted = None
+        if not hasattr(self, "case"):
+            self.case = None
+        if not hasattr(self, "runCase"):
+            self.runCase = None
+        if not hasattr(self, "caseAgent"):
+            self.caseAgent = None
+        if not hasattr(self, "caseStarted"):
+            self.caseStarted = None
+        if not hasattr(self, "connectionWasOpen"):
+            self.connectionWasOpen = None
+        if not hasattr(self, "shutdownOnComplete"):
+            self.shutdownOnComplete = None
 
         self.caseStart = 0
         self.caseEnd = 0
@@ -159,7 +144,6 @@ class FuzzingProtocol:
         self.shutdownOnComplete = False
 
     def connectionLost(self, reason: Failure = connectionDone):
-        print("FuzzingProtocol def connectionLost")
         if self.runCase:
             self.runCase.onConnectionLost(self.failedByMe)
             self.caseEnd = time.time()
@@ -319,13 +303,10 @@ class FuzzingProtocol:
         reactor.callLater(delay, self.executeCloseAfter)
 
     def executeKillAfter(self):
-        print("def executeKillAfter(self):")
         if self.state != WebSocketProtocol.STATE_CLOSED:
-            print("if")
             self.wirelog.append(("KLE",))
             self.failConnection()
         else:
-            print("else")
             pass  # connection already gone
 
     def executeCloseAfter(self):
@@ -338,7 +319,6 @@ class FuzzingProtocol:
     def onOpen(self):
         self.connectionWasOpen = True
 
-        print("Fuzzing protcol on open")
         if self.runCase:
             cc_id = self.factory.CaseSet.caseClasstoId(self.runCase.__class__)
             if self.factory.CaseSet.checkAgentCaseExclude(
@@ -1545,40 +1525,29 @@ class FuzzingServerFactory(FuzzingFactory, WebSocketServerFactory):
 
 
 class FuzzingClientProtocol(FuzzingProtocol, WebSocketClientProtocol):
-    def __init__(self):
-        super().__init__()
-
     def connectionMade(self):
-        print("def connectionMade(self):")
         FuzzingProtocol.connectionMade(self)
         WebSocketClientProtocol.connectionMade(self)
-        # super().connectionMade()
         self.caseStarted = utcnow()
 
     def onConnect(self, response):
-        print("def onConnect(self, response):")
         if not self.caseAgent:
             self.caseAgent = response.headers.get("server", "UnknownServer")
         print(
             f"Running test case ID {self.factory.CaseSet.caseClasstoId(self.Case)} for agent {self.caseAgent} from peer {self.peer}"
         )
-        # print(response)
 
     # addition
     def onClose(self, wasClean, code, reason):
-        print("def onClose(self, wasClean, code, reason)")
         return FuzzingProtocol.onClose(self, wasClean, code, reason)
 
     def onOpen(self):
-        print("def onOpen(self)")
         return FuzzingProtocol.onOpen(self)
 
     def onMessage(self, payload: str, isBinary: bool):
-        print("def onMessage(self, payload")
         return FuzzingProtocol.onMessage(self, payload, isBinary)
 
     def onPong(self, payload):
-        print("def onPong(self, payload)")
         return FuzzingProtocol.onPong(self, payload)
 
     def sendMessage(
@@ -1597,7 +1566,6 @@ class FuzzingClientProtocol(FuzzingProtocol, WebSocketClientProtocol):
         WebSocketClientProtocol.sendClose(self)
 
     def failConnection(self):
-        print("def failConnection(self)")
         self._fail_connection()
 
 
@@ -1721,8 +1689,7 @@ class FuzzingClientFactory(FuzzingFactory, WebSocketClientFactory):
 
 def startClient(spec, debug=False):
     log.startLogging(sys.stdout)
-    print(FuzzingClientProtocol.__mro__)
-    _ = FuzzingClientFactory(spec, True)
+    _ = FuzzingClientFactory(spec, debug)
     # no connectWS done here, since this is done within
     # FuzzingClientFactory automatically to orchestrate tests
     return True
