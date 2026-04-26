@@ -77,6 +77,8 @@ class Case:
         self.subcase = subcase
 
     def onMessage(self, msg, binary):
+        if not binary:
+            msg = msg.decode("utf-8", errors="replace")
         self.received.append(("message", msg, binary))
         self.finishWhenDone()
 

@@ -91,16 +91,31 @@ def binLogData(data: bytes | str, maxlen=64):
     return dd
 
 
-def asciiLogData(data, maxlen=64, replace=False):
+# def asciiLogData(data, maxlen=64, replace=False):
+#     ellipses = " ..."
+#     try:
+#         if len(data) > maxlen - len(ellipses):
+#             dd = data[:maxlen]
+#         else:
+#             dd = data
+#         return dd.decode("utf8", errors="replace" if replace else "strict")
+#     except Exception:
+#         return "0x" + binLogData(data, maxlen)
+
+
+def asciiLogData(
+    data: bytes, isBinary: bool = True, maxlen: int = 64, replace: bool = False
+):
     ellipses = " ..."
-    try:
-        if len(data) > maxlen - len(ellipses):
-            dd = data[:maxlen]
-        else:
-            dd = data
-        return dd.decode("utf8", errors="replace" if replace else "strict")
-    except Exception:
-        return "0x" + binLogData(data, maxlen)
+
+    if not isBinary:
+        strData = data.decode("utf-8", errors="replace" if replace else "strict")
+    else:
+        strData = repr(data)
+
+    if len(strData) > maxlen - len(ellipses):
+        return strData[:maxlen]
+    return strData
 
 
 class FuzzingProtocol:
@@ -247,11 +262,21 @@ class FuzzingProtocol:
                 self.rxFrameStats.get(frameHeader.opcode, 0) + 1
             )
         if self.createWirelog:
-            p = "".join(str(payload))
+            # p = "".join(str(payload))
+            val = b""
+            if isinstance(payload, list):
+                for p in payload:
+                    val += p
+            elif isinstance(payload, bytes):
+                val = payload
+            else:
+                val = repr(payload).encode()
+
+            aData = asciiLogData(val)
             self.wirelog.append(
                 (
                     "RF",
-                    (len(p), asciiLogData(p)),
+                    (len(payload), aData),
                     frameHeader.opcode,
                     frameHeader.fin,
                     frameHeader.rsv,
@@ -266,10 +291,11 @@ class FuzzingProtocol:
                 self.txFrameStats.get(frameHeader.opcode, 0) + 1
             )
         if self.createWirelog:
+            aData = asciiLogData(payload)
             self.wirelog.append(
                 (
                     "TF",
-                    (len(payload), asciiLogData(payload)),
+                    (len(payload), aData),
                     frameHeader.opcode,
                     frameHeader.fin,
                     frameHeader.rsv,
