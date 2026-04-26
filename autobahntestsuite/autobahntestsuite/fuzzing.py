@@ -25,6 +25,7 @@ import binascii
 import importlib.resources
 import json
 import os
+import sys
 import textwrap
 import time
 
@@ -64,12 +65,29 @@ import autobahntestsuite
 from autobahntestsuite.wstest import WsTestOptions
 
 
-def binLogData(data, maxlen=64):
+def convert(obj):
+    try:
+        if isinstance(obj, bytes):
+            return obj.decode("utf-8")
+        raise TypeError(f"Type not serializable: {type(obj)}")
+    except TypeError as e:
+        raise e
+    except Exception:
+        return obj.hex()
+
+
+def binLogData(data: bytes | str, maxlen=64):
     ellipses = " ..."
-    if len(data) > maxlen - len(ellipses):
-        dd = binascii.b2a_hex(data[:maxlen]) + ellipses.encode()
+
+    if isinstance(data, str):
+        bin_data = data.encode()
     else:
-        dd = binascii.b2a_hex(data)
+        bin_data = data
+
+    if len(data) > maxlen - len(ellipses):
+        dd = binascii.b2a_hex(bin_data[:maxlen]).hex() + ellipses
+    else:
+        dd = bin_data.hex()
     return dd
 
 
@@ -77,12 +95,12 @@ def asciiLogData(data, maxlen=64, replace=False):
     ellipses = " ..."
     try:
         if len(data) > maxlen - len(ellipses):
-            dd = data[:maxlen] + ellipses
+            dd = data[:maxlen]
         else:
             dd = data
         return dd.decode("utf8", errors="replace" if replace else "strict")
     except Exception:
-        return "0x" + str(binLogData(data, maxlen))
+        return "0x" + binLogData(data, maxlen)
 
 
 class FuzzingProtocol:
@@ -102,6 +120,7 @@ class FuzzingProtocol:
 
     def connectionMade(self):
 
+        print("fuzzing connection made called")
         # attrs = [
         #     "case",
         #     "runCase",
@@ -140,6 +159,7 @@ class FuzzingProtocol:
         self.shutdownOnComplete = False
 
     def connectionLost(self, reason: Failure = connectionDone):
+        print("FuzzingProtocol def connectionLost")
         if self.runCase:
             self.runCase.onConnectionLost(self.failedByMe)
             self.caseEnd = time.time()
@@ -243,7 +263,7 @@ class FuzzingProtocol:
                 self.rxFrameStats.get(frameHeader.opcode, 0) + 1
             )
         if self.createWirelog:
-            p = "".join(payload)
+            p = "".join(str(payload))
             self.wirelog.append(
                 (
                     "RF",
@@ -287,16 +307,26 @@ class FuzzingProtocol:
         self.wirelog.append(("CT", delay, tag))
         reactor.callLater(delay, self.executeContinueLater, fun, tag)
 
-    def executeKillAfter(self):
-        if self.state != WebSocketProtocol.STATE_CLOSED:
-            self.wirelog.append(("KLE",))
-            self.failConnection()
-        else:
-            pass  # connection already gone
+    def failConnection(self):
+        pass
 
     def killAfter(self, delay):
         self.wirelog.append(("KL", delay))
         reactor.callLater(delay, self.executeKillAfter)
+
+    def closeAfter(self, delay):
+        self.wirelog.append(("TI", delay))
+        reactor.callLater(delay, self.executeCloseAfter)
+
+    def executeKillAfter(self):
+        print("def executeKillAfter(self):")
+        if self.state != WebSocketProtocol.STATE_CLOSED:
+            print("if")
+            self.wirelog.append(("KLE",))
+            self.failConnection()
+        else:
+            print("else")
+            pass  # connection already gone
 
     def executeCloseAfter(self):
         if self.state != WebSocketProtocol.STATE_CLOSED:
@@ -305,13 +335,10 @@ class FuzzingProtocol:
         else:
             pass  # connection already gone
 
-    def closeAfter(self, delay):
-        self.wirelog.append(("TI", delay))
-        reactor.callLater(delay, self.executeCloseAfter)
-
     def onOpen(self):
         self.connectionWasOpen = True
 
+        print("Fuzzing protcol on open")
         if self.runCase:
             cc_id = self.factory.CaseSet.caseClasstoId(self.runCase.__class__)
             if self.factory.CaseSet.checkAgentCaseExclude(
@@ -325,53 +352,56 @@ class FuzzingProtocol:
                 return
             else:
                 self.caseStart = time.time()
-                print(self.runCase)
                 self.runCase.onOpen()
 
-        elif self.path == "/updateReports":
-            self.factory.createReports()
-            self.sendClose()
-            if self.shutdownOnComplete:
-                print("Report generation complete; shutting down server.")
-                reactor.stop()
-            else:
-                print("Report generation complete.")
+            return
 
-        elif self.path == "/getCaseCount":
-            self.sendMessage(json.dumps(len(self.factory.specCases)))
-            self.sendClose()
+        path = getattr(self, "path", None)
+        match path:
+            case "/updateReports":
+                self.factory.createReports()
+                self.sendClose()
+                if self.shutdownOnComplete:
+                    print("Report generation complete; shutting down server.")
+                    reactor.stop()
+                else:
+                    print("Report generation complete.")
 
-        elif self.path == "/getCaseStatus":
-
-            def sendResults(results):
-                self.sendMessage(json.dumps({"behavior": results["behavior"]}))
+            case "/getCaseCount":
+                self.sendMessage(json.dumps(len(self.factory.specCases)))
                 self.sendClose()
 
-            self.factory.addResultListener(
-                self.caseAgent,
-                self.factory.CaseSet.caseClasstoId(self.Case),
-                sendResults,
-            )
+            case "/getCaseStatus":
 
-        elif self.path == "/getCaseInfo":
-            self.sendMessage(
-                json.dumps(
-                    {
-                        "id": self.factory.CaseSet.caseClasstoId(self.Case),
-                        "description": self.factory.CaseSet.caseClassToPrettyDescription(
-                            self.Case
-                        ),
-                    }
+                def sendResults(results):
+                    self.sendMessage(json.dumps({"behavior": results["behavior"]}))
+                    self.sendClose()
+
+                self.factory.addResultListener(
+                    self.caseAgent,
+                    self.factory.CaseSet.caseClasstoId(self.Case),
+                    sendResults,
                 )
-            )
-            self.sendClose()
 
-        elif self.path == "/stopServer":
-            print("Shutting down server.")
-            reactor.stop()
+            case "/getCaseInfo":
+                self.sendMessage(
+                    json.dumps(
+                        {
+                            "id": self.factory.CaseSet.caseClasstoId(self.Case),
+                            "description": self.factory.CaseSet.caseClassToPrettyDescription(
+                                self.Case
+                            ),
+                        }
+                    )
+                )
+                self.sendClose()
 
-        else:
-            pass
+            case "/stopServer":
+                print("Shutting down server.")
+                reactor.stop()
+
+            case _:
+                print("No path named:", path)
 
     def onPong(self, payload):
         if self.runCase:
@@ -452,6 +482,19 @@ class FuzzingProtocol:
 
                 else:
                     raise Exception("fuzzing peer received unknown command", obj[0])
+
+    def sendMessage(
+        self,
+        payload,
+        isBinary=False,
+        fragmentSize=None,
+        sync=False,
+        doNotCompress=False,
+    ):
+        pass
+
+    def sendClose(self, code=None, reason=None):
+        pass
 
 
 class FuzzingFactory:
@@ -594,7 +637,7 @@ class FuzzingFactory:
         ## open report file in create / write-truncate mode
         ##
         report_filename = "index.html"
-        f = open(os.path.join(outdir, report_filename), "w")
+        f = open(os.path.join(outdir, report_filename), "w", encoding="utf-8")
 
         ## write HTML
         ##
@@ -677,6 +720,7 @@ class FuzzingFactory:
         ## sorted list of agents for which test cases where run
         ##
         agentList = sorted(self.agents.keys())
+        # print("Agents:", agentList)
 
         ## create list ordered list of case Ids
         ##
@@ -844,16 +888,14 @@ class FuzzingFactory:
         for caseId in caseList:
             CCase = self.CaseSet.CasesById[caseId]
             f.write("      <br/>\n")
-            f.write('      <a name="case_desc_%s"></a>\n' % caseId.replace(".", "_"))
-            f.write("      <h2>Case %s</h2>\n" % caseId)
+            f.write(f'      <a name="case_desc_{caseId.replace(".", "_")}"></a>\n')
+            f.write(f"      <h2>Case {caseId}</h2>\n")
             f.write('      <a class="up" href="#top">Up</a>\n')
             f.write(
-                '      <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>%s</p>\n'
-                % CCase.DESCRIPTION
+                f'      <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>{CCase.DESCRIPTION}</p>\n'
             )
             f.write(
-                '      <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>%s</p>\n'
-                % CCase.EXPECTATION
+                f'      <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>{CCase.EXPECTATION}</p>\n'
             )
         f.write("      </div>\n")
         f.write("      <br/><hr/>\n")
@@ -897,7 +939,11 @@ class FuzzingFactory:
         ##
         report_filename = self.makeAgentCaseReportFilename(agentId, caseId, ext="json")
         f = open(os.path.join(outdir, report_filename), "w")
-        f.write(json.dumps(case, sort_keys=True, indent=3, separators=(",", ": ")))
+        f.write(
+            json.dumps(
+                case, default=convert, sort_keys=True, indent=3, separators=(",", ": ")
+            )
+        )
         f.close()
 
     def createAgentCaseReportHTML(self, agentId, caseId, outdir):
@@ -1067,7 +1113,7 @@ class FuzzingFactory:
                 (
                     '         <tr class="stats_row"><td>%s</td><td class="left">%s</td><td class="left">%s</td></tr>\n'
                     % (c[0], case[c[0]], c[1])
-                ).encode("utf-8")
+                )
             )
         f.write("      </table>")
         f.write("      <br/><hr/>\n")
@@ -1178,7 +1224,12 @@ class FuzzingFactory:
 
             if t[0] in ["RO", "TO", "RF", "TF"]:
                 payloadLen = t[1][0]
-                lines = textwrap.wrap(t[1][1], 100)
+                if isinstance(t[1][1], bytes):
+                    lines = textwrap.wrap(
+                        t[1][1].decode("utf-8", errors="replace"), 100
+                    )
+                else:
+                    lines = textwrap.wrap(t[1][1], 100)
 
                 if t[0] in ["RO", "TO"]:
                     if len(lines) > 0:
@@ -1494,22 +1545,60 @@ class FuzzingServerFactory(FuzzingFactory, WebSocketServerFactory):
 
 
 class FuzzingClientProtocol(FuzzingProtocol, WebSocketClientProtocol):
+    def __init__(self):
+        super().__init__()
+
     def connectionMade(self):
+        print("def connectionMade(self):")
         FuzzingProtocol.connectionMade(self)
         WebSocketClientProtocol.connectionMade(self)
+        # super().connectionMade()
         self.caseStarted = utcnow()
 
     def onConnect(self, response):
+        print("def onConnect(self, response):")
         if not self.caseAgent:
             self.caseAgent = response.headers.get("server", "UnknownServer")
         print(
             f"Running test case ID {self.factory.CaseSet.caseClasstoId(self.Case)} for agent {self.caseAgent} from peer {self.peer}"
         )
-        print(response)
+        # print(response)
 
-    def connectionLost(self, reason: Failure = connectionDone):
-        WebSocketClientProtocol.connectionLost(self, reason)
-        FuzzingProtocol.connectionLost(self, reason)
+    # addition
+    def onClose(self, wasClean, code, reason):
+        print("def onClose(self, wasClean, code, reason)")
+        return FuzzingProtocol.onClose(self, wasClean, code, reason)
+
+    def onOpen(self):
+        print("def onOpen(self)")
+        return FuzzingProtocol.onOpen(self)
+
+    def onMessage(self, payload: str, isBinary: bool):
+        print("def onMessage(self, payload")
+        return FuzzingProtocol.onMessage(self, payload, isBinary)
+
+    def onPong(self, payload):
+        print("def onPong(self, payload)")
+        return FuzzingProtocol.onPong(self, payload)
+
+    def sendMessage(
+        self,
+        payload,
+        isBinary=False,
+        fragmentSize=None,
+        sync=False,
+        doNotCompress=False,
+    ):
+        return WebSocketClientProtocol.sendMessage(
+            self, payload, isBinary, fragmentSize, sync, doNotCompress
+        )
+
+    def sendClose(self, code=None, reason=None):
+        WebSocketClientProtocol.sendClose(self)
+
+    def failConnection(self):
+        print("def failConnection(self)")
+        self._fail_connection()
 
 
 class FuzzingClientFactory(FuzzingFactory, WebSocketClientFactory):
@@ -1608,7 +1697,6 @@ class FuzzingClientFactory(FuzzingFactory, WebSocketClientFactory):
         return True
 
     def clientConnectionLost(self, connector, reason):
-        print("def clientConnectionLost(self, connector, reason):")
         if self.nextCase():
             connector.connect()
         else:
@@ -1632,7 +1720,9 @@ class FuzzingClientFactory(FuzzingFactory, WebSocketClientFactory):
 
 
 def startClient(spec, debug=False):
-    _ = FuzzingClientFactory(spec, debug)
+    log.startLogging(sys.stdout)
+    print(FuzzingClientProtocol.__mro__)
+    _ = FuzzingClientFactory(spec, True)
     # no connectWS done here, since this is done within
     # FuzzingClientFactory automatically to orchestrate tests
     return True

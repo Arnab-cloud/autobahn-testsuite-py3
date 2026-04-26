@@ -64,17 +64,17 @@ class Case:
 
         self.init()
 
-    def getSubcaseCount(self):
-        return len(Case.SUBCASES)
-
-    def setSubcase(self, subcase):
-        self.subcase = subcase
-
     def init(self):
         pass
 
     def onOpen(self):
         pass
+
+    def getSubcaseCount(self):
+        return len(Case.SUBCASES)
+
+    def setSubcase(self, subcase):
+        self.subcase = subcase
 
     def onMessage(self, msg, binary):
         self.received.append(("message", msg, binary))
@@ -114,7 +114,7 @@ class Case:
                     "The spec requires the connection to be failed cleanly here"
                 )
             elif (
-                self.p.remoteCloseCode != None
+                self.p.remoteCloseCode is not None
                 and self.p.remoteCloseCode not in self.expectedClose["closeCode"]
             ):
                 self.behaviorClose = Case.WRONG_CODE
