@@ -58,5 +58,7 @@ class Case7_5_1(Case):
             "requireClean": False,
         }
         # self.p.sendFrame(opcode = 8,payload = self.payload)
-        self.p.sendCloseFrame(self.p.CLOSE_STATUS_CODE_NORMAL, reasonUtf8=self.payload)
+        self.p.sendCloseFrame(
+            self.p.CLOSE_STATUS_CODE_NORMAL, reasonUtf8=self.payload.encode()
+        )
         self.p.killAfter(1)

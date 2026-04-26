@@ -32,5 +32,5 @@ class Case1_1_8(Case):
             "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
             "requireClean": True,
         }
-        self.p.sendFrame(opcode=1, payload=payload.encode(), chopsize=997)
+        self.p.sendFrame(opcode=1, payload=payload, chopsize=997)
         self.p.killAfter(10)

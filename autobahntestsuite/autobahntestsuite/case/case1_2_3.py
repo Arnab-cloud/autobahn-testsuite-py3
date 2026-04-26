@@ -25,7 +25,7 @@ class Case1_2_3(Case):
     EXPECTATION = """Receive echo'ed binary message (with payload as sent). Clean close with normal code."""
 
     def onOpen(self):
-        payload = "\xfe" * 126
+        payload = b"\xfe" * 126
         self.expected[Case.OK] = [("message", payload, True)]
         self.expectedClose = {
             "closedByMe": True,

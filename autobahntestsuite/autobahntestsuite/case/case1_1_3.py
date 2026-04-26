@@ -33,5 +33,5 @@ class Case1_1_3(Case):
             "requireClean": True,
         }
 
-        self.p.sendFrame(opcode=1, payload=payload.encode())
+        self.p.sendFrame(opcode=1, payload=payload)
         self.p.killAfter(1)

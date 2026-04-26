@@ -24,9 +24,6 @@ class Case1_1_1(Case):
 
     EXPECTATION = """Receive echo'ed text message (with empty payload). Clean close with normal code."""
 
-    def __init__(self, protocol):
-        super().__init__(protocol)
-
     def onOpen(self):
         payload = ""
         self.expected[Case.OK] = [("message", payload, False)]
@@ -35,6 +32,5 @@ class Case1_1_1(Case):
             "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
             "requireClean": True,
         }
-        # print(self.p)
-        self.p.sendFrame(opcode=1, payload=payload.encode())
+        self.p.sendFrame(opcode=1, payload=payload)
         self.p.killAfter(1)

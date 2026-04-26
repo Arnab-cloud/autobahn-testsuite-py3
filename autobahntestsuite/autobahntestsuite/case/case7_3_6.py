@@ -43,5 +43,7 @@ class Case7_3_6(Case):
             "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
             "requireClean": False,
         }
-        self.p.sendCloseFrame(self.p.CLOSE_STATUS_CODE_NORMAL, reasonUtf8=self.payload)
+        self.p.sendCloseFrame(
+            self.p.CLOSE_STATUS_CODE_NORMAL, reasonUtf8=self.payload.encode()
+        )
         self.p.killAfter(1)

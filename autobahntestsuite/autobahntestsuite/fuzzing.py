@@ -108,13 +108,13 @@ def asciiLogData(
 ):
     ellipses = " ..."
 
-    if not isBinary:
-        strData = data.decode("utf-8", errors="replace" if replace else "strict")
+    if isBinary:
+        strData = str(data)
     else:
-        strData = repr(data)
+        strData = data.decode("utf-8", errors="replace" if replace else "strict")
 
     if len(strData) > maxlen - len(ellipses):
-        return strData[:maxlen]
+        return strData[:maxlen] + ellipses
     return strData
 
 
@@ -424,7 +424,6 @@ class FuzzingProtocol:
                 log.msg("Close received: %s - %s" % (code, reason))
 
     def onMessage(self, payload: str, isBinary: bool):
-
         if self.runCase:
             self.runCase.onMessage(payload, isBinary)
 
@@ -980,7 +979,7 @@ class FuzzingFactory:
         ## open report file in create / write-truncate mode
         ##
         report_filename = self.makeAgentCaseReportFilename(agentId, caseId, ext="html")
-        f = open(os.path.join(outdir, report_filename), "w")
+        f = open(os.path.join(outdir, report_filename), "w", encoding="utf-8")
 
         ## write HTML
         ##
@@ -1576,6 +1575,29 @@ class FuzzingClientProtocol(FuzzingProtocol, WebSocketClientProtocol):
     def onPong(self, payload):
         return FuzzingProtocol.onPong(self, payload)
 
+    def sendFrame(
+        self,
+        opcode,
+        payload=b"",
+        fin=True,
+        rsv=0,
+        mask=None,
+        payload_len=None,
+        chopsize=None,
+        sync=False,
+    ):
+        return WebSocketClientProtocol.sendFrame(
+            self,
+            opcode,
+            payload if isinstance(payload, bytes) else payload.encode(),
+            fin,
+            rsv,
+            mask,
+            payload_len,
+            chopsize,
+            sync,
+        )
+
     def sendMessage(
         self,
         payload,
@@ -1585,7 +1607,12 @@ class FuzzingClientProtocol(FuzzingProtocol, WebSocketClientProtocol):
         doNotCompress=False,
     ):
         return WebSocketClientProtocol.sendMessage(
-            self, payload, isBinary, fragmentSize, sync, doNotCompress
+            self,
+            payload if isinstance(payload, bytes) else payload.encode(),
+            isBinary,
+            fragmentSize,
+            sync,
+            doNotCompress,
         )
 
     def sendClose(self, code=None, reason=None):

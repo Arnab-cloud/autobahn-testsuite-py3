@@ -53,18 +53,18 @@ PART3 = %s<br>
 
         self.p.beginMessage()
         self.p.beginMessageFrame(len(self.PAYLOAD))
-        self.p.sendMessageFrameData(self.PAYLOAD1)
+        self.p.sendMessageFrameData(self.PAYLOAD1.encode())
         self.p.continueLater(1, self.part2, "A")
 
     def part2(self):
         if self.p.state == WebSocketProtocol.STATE_OPEN:
             self.received.append(("timeout", "A"))
-            self.p.sendMessageFrameData(self.PAYLOAD2)
+            self.p.sendMessageFrameData(self.PAYLOAD2.encode())
             self.p.continueLater(1, self.part3, "B")
 
     def part3(self):
         if self.p.state == WebSocketProtocol.STATE_OPEN:
             self.received.append(("timeout", "B"))
-            self.p.sendMessageFrameData(self.PAYLOAD3)
+            self.p.sendMessageFrameData(self.PAYLOAD3.encode())
             self.p.endMessage()
             self.p.killAfter(1)
