@@ -44,8 +44,8 @@ class Case5_19(Case):
         self.pings = ["pongme 1!", "pongme 2!"]
 
         self.expected[Case.OK] = [
-            ("pong", self.pings[0]),
-            ("pong", self.pings[1]),
+            ("pong", self.pings[0].encode()),
+            ("pong", self.pings[1].encode()),
             ("message", "".join(self.fragments), False),
         ]
         self.expectedClose = {

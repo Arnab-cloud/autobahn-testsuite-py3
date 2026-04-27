@@ -28,7 +28,7 @@ class Case5_6(Case):
         ping_payload = "ping payload"
         fragments = ["fragment1", "fragment2"]
         self.expected[Case.OK] = [
-            ("pong", ping_payload),
+            ("pong", ping_payload.encode()),
             ("message", "".join(fragments), False),
         ]
         self.expectedClose = {
