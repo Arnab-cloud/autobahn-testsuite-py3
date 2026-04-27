@@ -33,14 +33,14 @@ class Case10_1_1(Case):
             "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
             "requireClean": True,
         }
-        self.p.sendMessage(self.payload)
+        self.p.sendMessage(self.payload, fragmentSize=self.p.autoFragmentSize)
         self.p.killAfter(10)
 
     def onConnectionLost(self, failedByMe):
         Case.onConnectionLost(self, failedByMe)
         if self.p.connectionWasOpen:
             frames_expected = {}
-            frames_expected[0] = len(self.payload) / self.p.autoFragmentSize
+            frames_expected[0] = len(self.payload) // self.p.autoFragmentSize
             frames_expected[1] = (
                 1 if len(self.payload) % self.p.autoFragmentSize > 0 else 0
             )
