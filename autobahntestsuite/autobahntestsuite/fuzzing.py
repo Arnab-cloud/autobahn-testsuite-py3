@@ -91,18 +91,6 @@ def binLogData(data: bytes | str, maxlen=64):
     return dd
 
 
-# def asciiLogData(data, maxlen=64, replace=False):
-#     ellipses = " ..."
-#     try:
-#         if len(data) > maxlen - len(ellipses):
-#             dd = data[:maxlen]
-#         else:
-#             dd = data
-#         return dd.decode("utf8", errors="replace" if replace else "strict")
-#     except Exception:
-#         return "0x" + binLogData(data, maxlen)
-
-
 def asciiLogData(
     data: bytes, isBinary: bool = True, maxlen: int = 64, replace: bool = False
 ):
@@ -423,7 +411,7 @@ class FuzzingProtocol:
             if self.debug:
                 log.msg("Close received: %s - %s" % (code, reason))
 
-    def onMessage(self, payload: str, isBinary: bool):
+    def onMessage(self, payload: bytes, isBinary: bool):
         if self.runCase:
             self.runCase.onMessage(payload, isBinary)
 
@@ -1569,7 +1557,7 @@ class FuzzingClientProtocol(FuzzingProtocol, WebSocketClientProtocol):
     def onOpen(self):
         return FuzzingProtocol.onOpen(self)
 
-    def onMessage(self, payload: str, isBinary: bool):
+    def onMessage(self, payload: bytes, isBinary: bool):
         return FuzzingProtocol.onMessage(self, payload, isBinary)
 
     def onPong(self, payload):

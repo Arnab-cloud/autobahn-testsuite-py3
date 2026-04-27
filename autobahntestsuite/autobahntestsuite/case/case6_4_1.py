@@ -25,10 +25,10 @@ from case.case import Case
 
 
 class Case6_4_1(Case):
-    PAYLOAD1 = "\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5"
+    PAYLOAD1 = b"\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5"
     # PAYLOAD2 = '\xed\xa0\x80' # invalid exactly on byte 12 (\xa0)
-    PAYLOAD2 = "\xf4\x90\x80\x80"  # invalid exactly on byte 12 (\x90)
-    PAYLOAD3 = "\x65\x64\x69\x74\x65\x64"
+    PAYLOAD2 = b"\xf4\x90\x80\x80"  # invalid exactly on byte 12 (\x90)
+    PAYLOAD3 = b"\x65\x64\x69\x74\x65\x64"
     PAYLOAD = PAYLOAD1 + PAYLOAD2 + PAYLOAD3
 
     DESCRIPTION = """Send invalid UTF-8 text message in 3 fragments (frames).
@@ -39,9 +39,9 @@ PART1 = %s<br>
 PART2 = %s<br>
 PART3 = %s<br>
 """ % (
-        binascii.b2a_hex(PAYLOAD1.encode()),
-        binascii.b2a_hex(PAYLOAD2.encode()),
-        binascii.b2a_hex(PAYLOAD3.encode()),
+        binascii.b2a_hex(PAYLOAD1),
+        binascii.b2a_hex(PAYLOAD2),
+        binascii.b2a_hex(PAYLOAD3),
     )
 
     EXPECTATION = """The first frame is accepted, we expect to timeout on the first wait. The 2nd frame should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8."""

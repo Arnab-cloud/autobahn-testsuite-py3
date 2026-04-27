@@ -32,9 +32,9 @@ PART1 = %s<br>
 PART2 = %s<br>
 PART3 = %s<br>
 """ % (
-        binascii.b2a_hex(Case6_4_1.PAYLOAD1.encode()),
-        binascii.b2a_hex(Case6_4_1.PAYLOAD2.encode()),
-        binascii.b2a_hex(Case6_4_1.PAYLOAD3.encode()),
+        binascii.b2a_hex(Case6_4_1.PAYLOAD1),
+        binascii.b2a_hex(Case6_4_1.PAYLOAD2),
+        binascii.b2a_hex(Case6_4_1.PAYLOAD3),
     )
 
     EXPECTATION = """The first chop is accepted, we expect to timeout on the first wait. The 2nd chop should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8."""
@@ -53,18 +53,18 @@ PART3 = %s<br>
 
         self.p.beginMessage()
         self.p.beginMessageFrame(len(self.PAYLOAD))
-        self.p.sendMessageFrameData(self.PAYLOAD1.encode())
+        self.p.sendMessageFrameData(self.PAYLOAD1)
         self.p.continueLater(1, self.part2, "A")
 
     def part2(self):
         if self.p.state == WebSocketProtocol.STATE_OPEN:
             self.received.append(("timeout", "A"))
-            self.p.sendMessageFrameData(self.PAYLOAD2.encode())
+            self.p.sendMessageFrameData(self.PAYLOAD2)
             self.p.continueLater(1, self.part3, "B")
 
     def part3(self):
         if self.p.state == WebSocketProtocol.STATE_OPEN:
             self.received.append(("timeout", "B"))
-            self.p.sendMessageFrameData(self.PAYLOAD3.encode())
+            self.p.sendMessageFrameData(self.PAYLOAD3)
             self.p.endMessage()
             self.p.killAfter(1)
