@@ -18,8 +18,6 @@
 
 import pickle
 
-from autobahn.websocket.protocol import WebSocketProtocol
-
 
 class Case:
     FAILED = "FAILED"
@@ -76,17 +74,16 @@ class Case:
     def setSubcase(self, subcase):
         self.subcase = subcase
 
-    def onMessage(self, msg, binary):
-        if not binary:
-            msg = msg.decode("utf-8", errors="replace")
-        self.received.append(("message", msg, binary))
+    def onMessage(self, payload: bytes, isBinary: bool):
+        msg = payload.decode("utf-8", errors="replace") if not isBinary else payload
+        self.received.append(("message", msg, isBinary))
         self.finishWhenDone()
 
     def onPing(self, payload):
         self.received.append(("ping", payload))
         self.finishWhenDone()
 
-    def onPong(self, payload):
+    def onPong(self, payload: bytes):
         self.received.append(("pong", payload))
         self.finishWhenDone()
 

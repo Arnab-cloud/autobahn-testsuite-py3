@@ -26,7 +26,7 @@ class Case2_9(Case):
 
     def onOpen(self):
         payload = "ping payload"
-        self.expected[Case.OK] = [("pong", payload)]
+        self.expected[Case.OK] = [("pong", payload.encode())]
         self.expectedClose = {
             "closedByMe": True,
             "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],

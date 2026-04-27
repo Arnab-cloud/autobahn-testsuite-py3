@@ -25,7 +25,7 @@ class Case2_4(Case):
     EXPECTATION = """Pong with payload echo'ed is sent in reply to Ping. Clean close with normal code."""
 
     def onOpen(self):
-        payload = "\xfe" * 125
+        payload = b"\xfe" * 125
         self.expected[Case.OK] = [("pong", payload)]
         self.expectedClose = {
             "closedByMe": True,

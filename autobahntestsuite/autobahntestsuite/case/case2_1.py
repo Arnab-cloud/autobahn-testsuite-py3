@@ -25,7 +25,9 @@ class Case2_1(Case):
     EXPECTATION = """Pong (with empty payload) is sent in reply to Ping. Clean close with normal code."""
 
     def onOpen(self):
-        self.expected[Case.OK] = [("pong", "")]
+        PAYLOAD = ""
+
+        self.expected[Case.OK] = [("pong", PAYLOAD.encode())]
         self.expectedClose = {
             "closedByMe": True,
             "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
