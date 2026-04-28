@@ -20,8 +20,8 @@
 
 import binascii
 
-from case.case import Case
-from case.case6_3_1 import Case6_3_1
+from autobahntestsuite.case.case import Case
+from autobahntestsuite.case.case6_3_1 import Case6_3_1
 
 
 class Case6_3_2(Case6_3_1):

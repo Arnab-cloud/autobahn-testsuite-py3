@@ -42,18 +42,6 @@ from autobahn.twisted.websocket import (
 )
 from autobahn.util import utcnow
 from autobahn.websocket.protocol import WebSocketProtocol
-from case import (
-    Case,
-    CaseBasename,
-    CaseCategories,
-    Cases,
-    CaseSetname,
-    CaseSubCategories,
-)
-
-# from case.case import Case
-from caseset import CaseSet
-from report import CSS_COMMON, CSS_DETAIL_REPORT, CSS_MASTER_REPORT, JS_MASTER_REPORT
 from twisted.internet import reactor, ssl
 from twisted.internet.protocol import connectionDone
 from twisted.python import log
@@ -62,6 +50,23 @@ from twisted.web.server import Site
 from twisted.web.static import File
 
 import autobahntestsuite
+from autobahntestsuite.case import (
+    Case,
+    CaseBasename,
+    CaseCategories,
+    Cases,
+    CaseSetname,
+    CaseSubCategories,
+)
+
+# from autobahntestsuite.case.case import Case
+from autobahntestsuite.caseset import CaseSet
+from autobahntestsuite.report import (
+    CSS_COMMON,
+    CSS_DETAIL_REPORT,
+    CSS_MASTER_REPORT,
+    JS_MASTER_REPORT,
+)
 from autobahntestsuite.wstest import WsTestOptions
 
 

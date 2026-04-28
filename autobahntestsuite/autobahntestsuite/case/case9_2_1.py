@@ -16,7 +16,7 @@
 ##
 ###############################################################################
 
-from case.case import Case
+from autobahntestsuite.case.case import Case
 
 
 class Case9_2_1(Case):

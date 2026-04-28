@@ -21,8 +21,9 @@
 import binascii
 
 from autobahn.websocket.protocol import WebSocketProtocol
-from case.case import Case
-from case.case6_4_1 import Case6_4_1
+
+from autobahntestsuite.case.case import Case
+from autobahntestsuite.case.case6_4_1 import Case6_4_1
 
 
 class Case6_4_3(Case6_4_1):

@@ -35,7 +35,8 @@ from autobahn.websocket.compress import (
     PerMessageDeflateResponse,
     PerMessageDeflateResponseAccept,
 )
-from case.case import Case
+
+from autobahntestsuite.case.case import Case
 
 ## list of (payload length, message count, case timeout, auto-fragment size)
 ##

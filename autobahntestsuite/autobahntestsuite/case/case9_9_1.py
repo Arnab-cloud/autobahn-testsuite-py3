@@ -21,11 +21,12 @@
 # import binascii
 
 from autobahn.websocket.protocol import WebSocketProtocol
-from case.case import Case
 from twisted.internet import interfaces, reactor
 
 # from zope.interface import implements
 from zope.interface import implementer
+
+from autobahntestsuite.case.case import Case
 
 
 @implementer(interfaces.IPushProducer)

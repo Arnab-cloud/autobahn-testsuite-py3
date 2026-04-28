@@ -29,6 +29,21 @@ from autobahn.twisted.websocket import (
     listenWS,
 )
 from autobahn.websocket.compress import *
+
+# from autobahn.websocket.compress import (
+#     PerMessageBzip2Offer,
+#     PerMessageBzip2OfferAccept,
+#     PerMessageBzip2Response,
+#     PerMessageBzip2ResponseAccept,
+#     PerMessageDeflateOffer,
+#     PerMessageDeflateOfferAccept,
+#     PerMessageDeflateResponse,
+#     PerMessageDeflateResponseAccept,
+#     PerMessageSnappyOffer,
+#     PerMessageSnappyOfferAccept,
+#     PerMessageSnappyResponse,
+#     PerMessageSnappyResponseAccept,
+# )
 from twisted.internet import reactor
 from twisted.web.server import Site
 from twisted.web.static import File
@@ -50,9 +65,9 @@ class StreamingTesteeServerProtocol(WebSocketServerProtocol):
         WebSocketServerProtocol.onMessageFrameBegin(self, length)
         self.beginMessageFrame(length)
 
-    def onMessageFrameData(self, data):
+    def onMessageFrameData(self, payload):
         # print("onMessageFrameData", len(data))
-        self.sendMessageFrameData(data)
+        self.sendMessageFrameData(payload)
 
     def onMessageFrameEnd(self):
         # print("onMessageFrameEnd")

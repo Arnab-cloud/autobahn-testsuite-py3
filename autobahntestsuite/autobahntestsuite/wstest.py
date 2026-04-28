@@ -23,28 +23,33 @@ import sys
 
 ## for versions
 import autobahn
-import broadcast
+
+# import wsperfmaster
+from autobahn.websocket.utf8validator import Utf8Validator
+from autobahn.websocket.xormasker import XorMaskerNull
+from twisted.internet import reactor
+from twisted.internet.defer import Deferred
+from twisted.python import log, usage
+
+import autobahntestsuite
+import autobahntestsuite.broadcast
 
 # import choosereactor
 ## WAMP testing modes
 # import wamptestee
 # import wampfuzzing
 ## Misc testing modes
-import echo
-import fuzzing
-import massconnect
-import serializer
+import autobahntestsuite.echo
+import autobahntestsuite.fuzzing
+import autobahntestsuite.massconnect
+import autobahntestsuite.serializer
 
 ## WebSocket testing modes
-import testee
+import autobahntestsuite.testee
 
 # import pkg_resources
-import wsperfcontrol
-
-# import wsperfmaster
-from autobahn.websocket.utf8validator import Utf8Validator
-from autobahn.websocket.xormasker import XorMaskerNull
-from spectemplate import (
+import autobahntestsuite.wsperfcontrol
+from autobahntestsuite.spectemplate import (
     SPEC_FUZZINGCLIENT,
     SPEC_FUZZINGSERVER,
     SPEC_FUZZINGWAMPCLIENT,
@@ -52,11 +57,6 @@ from spectemplate import (
     SPEC_MASSCONNECT,
     SPEC_WSPERFCONTROL,
 )
-from twisted.internet import reactor
-from twisted.internet.defer import Deferred
-from twisted.python import log, usage
-
-import autobahntestsuite
 
 
 class WsTestOptions(usage.Options):

@@ -19,8 +19,9 @@ import os
 import sys
 
 import jinja2
-from interfaces import IReportGenerator
 from zope.interface import implementer
+
+from autobahntestsuite.interfaces import IReportGenerator
 
 __all__ = (
     "CSS_COMMON",

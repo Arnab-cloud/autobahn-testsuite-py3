@@ -22,7 +22,8 @@ import array
 import binascii
 
 from autobahn.websocket.utf8validator import Utf8Validator
-from case.case import Case
+
+from autobahntestsuite.case.case import Case
 
 
 def createUtf8TestSequences() -> list[tuple[str, list[tuple[bool, bytes]]]]:
