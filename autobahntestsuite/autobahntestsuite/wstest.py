@@ -32,23 +32,23 @@ from twisted.internet.defer import Deferred
 from twisted.python import log, usage
 
 import autobahntestsuite
-import autobahntestsuite.broadcast
+import autobahntestsuite.broadcast as broadcast
 
 # import choosereactor
 ## WAMP testing modes
 # import wamptestee
 # import wampfuzzing
 ## Misc testing modes
-import autobahntestsuite.echo
-import autobahntestsuite.fuzzing
-import autobahntestsuite.massconnect
-import autobahntestsuite.serializer
+import autobahntestsuite.echo as echo
+import autobahntestsuite.fuzzing as fuzzing
+import autobahntestsuite.massconnect as massconnect
+import autobahntestsuite.serializer as serializer
 
 ## WebSocket testing modes
-import autobahntestsuite.testee
+import autobahntestsuite.testee as testee
 
 # import pkg_resources
-import autobahntestsuite.wsperfcontrol
+import autobahntestsuite.wsperfcontrol as wsperfcontrol
 from autobahntestsuite.spectemplate import (
     SPEC_FUZZINGCLIENT,
     SPEC_FUZZINGSERVER,
