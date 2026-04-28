@@ -78,7 +78,7 @@ class BroadcastServerFactory(WebSocketServerFactory):
 
 class BroadcastClientProtocol(WebSocketClientProtocol):
     def sendHello(self):
-        self.sendMessage("hello from %s[%d]" % (socket.gethostname(), os.getpid()))
+        self.sendMessage(f"hello from {socket.gethostname()}[{os.getpid()}]".encode())
         reactor.callLater(2, self.sendHello)
 
     def onOpen(self):
@@ -95,7 +95,7 @@ class BroadcastClientFactory(WebSocketClientFactory):
     protocol = BroadcastClientProtocol
 
     def __init__(self, url, debug=False):
-        WebSocketClientFactory.__init__(self, url, debug=debug, debugCodePaths=debug)
+        super().__init__(url)
 
 
 def startClient(wsuri, debug=False):
