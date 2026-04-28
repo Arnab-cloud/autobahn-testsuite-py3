@@ -31,7 +31,6 @@ from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.python import log, usage
 
-import autobahntestsuite
 import autobahntestsuite.broadcast as broadcast
 
 # import choosereactor
@@ -49,6 +48,7 @@ import autobahntestsuite.testee as testee
 
 # import pkg_resources
 import autobahntestsuite.wsperfcontrol as wsperfcontrol
+from autobahntestsuite import version
 from autobahntestsuite.spectemplate import (
     SPEC_FUZZINGCLIENT,
     SPEC_FUZZINGSERVER,
@@ -175,7 +175,7 @@ class WsTestOptions(usage.Options):
 
         if self["autobahnversion"]:
             print("Autobahn %s" % autobahn.version)
-            print("AutobahnTestSuite %s" % autobahntestsuite.version)
+            print("AutobahnTestSuite %s" % version)
             sys.exit(0)
 
         if not self["mode"]:
