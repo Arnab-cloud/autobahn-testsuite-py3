@@ -1,0 +1,24 @@
+[
+    {
+        "adapter": "Debugpy",
+        "args": ["-m", "fuzzingclient", "-s", "./examples/spec.json"],
+        "label": "Debug Wstest",
+        "request": "launch",
+        "program": "${ZED_WORKTREE_ROOT}/autobahntestsuite/autobahntestsuite/wstest.py",
+        "justMyCode": false,
+    },
+    {
+        "adapter": "Debugpy",
+        "args": ["-m", "broadcastclient", "--wsuri=ws://localhost:9001"],
+        "label": "Debug broadcast",
+        "request": "launch",
+        "program": "${ZED_WORKTREE_ROOT}/autobahntestsuite/autobahntestsuite/wstest.py",
+        "justMyCode": false,
+    },
+    {
+        "adapter": "Debugpy",
+        "label": "Smol Test",
+        "request": "launch",
+        "justMyCode": false,
+    },
+]

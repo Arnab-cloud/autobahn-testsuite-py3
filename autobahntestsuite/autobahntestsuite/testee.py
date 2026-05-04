@@ -28,22 +28,23 @@ from autobahn.twisted.websocket import (
     connectWS,
     listenWS,
 )
-from autobahn.websocket.compress import *
 
-# from autobahn.websocket.compress import (
-#     PerMessageBzip2Offer,
-#     PerMessageBzip2OfferAccept,
-#     PerMessageBzip2Response,
-#     PerMessageBzip2ResponseAccept,
-#     PerMessageDeflateOffer,
-#     PerMessageDeflateOfferAccept,
-#     PerMessageDeflateResponse,
-#     PerMessageDeflateResponseAccept,
-#     PerMessageSnappyOffer,
-#     PerMessageSnappyOfferAccept,
-#     PerMessageSnappyResponse,
-#     PerMessageSnappyResponseAccept,
-# )
+# from autobahn.websocket.compress import *
+from autobahn.websocket.compress import (
+    PerMessageBzip2Offer,
+    PerMessageBzip2OfferAccept,
+    PerMessageBzip2Response,
+    PerMessageBzip2ResponseAccept,
+    PerMessageDeflateOffer,
+    PerMessageDeflateOfferAccept,
+    PerMessageDeflateResponse,
+    PerMessageDeflateResponseAccept,
+    PerMessageSnappyOffer,
+    PerMessageSnappyOfferAccept,
+    PerMessageSnappyResponse,
+    PerMessageSnappyResponseAccept,
+)
+
 #
 from twisted.internet import reactor
 from twisted.web.server import Site
@@ -126,21 +127,23 @@ class TesteeClientProtocol(WebSocketClientProtocol):
                 )
             )
 
-    def onMessage(self, msg, binary):
+    def onMessage(self, payload, isBinary):
         if self.factory.endCaseId is None:
-            self.factory.endCaseId = int(msg)
+            self.factory.endCaseId = int(payload)
             print("Ok, will run %d cases" % self.factory.endCaseId)
         else:
-            self.sendMessage(msg, binary)
+            self.sendMessage(payload, binary)
 
 
 class TesteeClientFactory(WebSocketClientFactory):
     protocol = TesteeClientProtocol
 
     def __init__(self, url, debug=False, ident=None):
-        WebSocketClientFactory.__init__(
-            self, url, useragent=ident, debug=debug, debugCodePaths=debug
-        )
+        # WebSocketClientFactory.__init__(
+        #     self, url, useragent=ident, debug=debug, debugCodePaths=debug
+        # )
+
+        super().__init__(url, useragent=ident)
         self.setProtocolOptions(failByDrop=False)  # spec conformance
 
         ## enable permessage-XXX compression extensions

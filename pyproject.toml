@@ -5,8 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "autobahn[twisted]>=25.12.2",
-    "pyopenssl>=26.0.0",
+    "autobahn[accelerate,twisted]>=25.12.2",
+    "python-snappy>=0.7.3",
     "setuptools>=82.0.1",
-    "twisted>=25.5.0",
 ]
