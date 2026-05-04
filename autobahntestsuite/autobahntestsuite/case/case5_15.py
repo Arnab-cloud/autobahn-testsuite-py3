@@ -16,21 +16,25 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case5_15(Case):
+    DESCRIPTION = """Send text Message fragmented into 2 fragments, then Continuation Frame with FIN = false where there is nothing to continue, then unfragmented Text Message, all sent in one chop."""
 
-   DESCRIPTION = """Send text Message fragmented into 2 fragments, then Continuation Frame with FIN = false where there is nothing to continue, then unfragmented Text Message, all sent in one chop."""
+    EXPECTATION = """The connection is failed immediately, since there is no message to continue."""
 
-   EXPECTATION = """The connection is failed immediately, since there is no message to continue."""
-
-   def onOpen(self):
-      fragments = ["fragment1", "fragment2", "fragment3", "fragment4"]
-      self.expected[Case.OK] = [("message", ''.join(fragments[:2]), False)]
-      self.expected[Case.NON_STRICT] = []
-      self.expectedClose = {"closedByMe":False,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendFrame(opcode = 1, fin = False, payload = fragments[0])
-      self.p.sendFrame(opcode = 0, fin = True, payload = fragments[1])
-      self.p.sendFrame(opcode = 0, fin = False, payload = fragments[2])
-      self.p.sendFrame(opcode = 1, fin = True, payload = fragments[3])
-      self.p.killAfter(1)
+    def onOpen(self):
+        fragments = ["fragment1", "fragment2", "fragment3", "fragment4"]
+        self.expected[Case.OK] = [("message", "".join(fragments[:2]), False)]
+        self.expected[Case.NON_STRICT] = []
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+            "requireClean": False,
+        }
+        self.p.sendFrame(opcode=1, fin=False, payload=fragments[0])
+        self.p.sendFrame(opcode=0, fin=True, payload=fragments[1])
+        self.p.sendFrame(opcode=0, fin=False, payload=fragments[2])
+        self.p.sendFrame(opcode=1, fin=True, payload=fragments[3])
+        self.p.killAfter(1)

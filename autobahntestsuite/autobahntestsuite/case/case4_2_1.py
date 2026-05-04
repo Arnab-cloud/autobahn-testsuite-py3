@@ -16,16 +16,20 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case4_2_1(Case):
+    DESCRIPTION = """Send frame with reserved control <b>Opcode = 11</b>."""
 
-   DESCRIPTION = """Send frame with reserved control <b>Opcode = 11</b>."""
+    EXPECTATION = """The connection is failed immediately."""
 
-   EXPECTATION = """The connection is failed immediately."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = []
-      self.expectedClose = {"closedByMe":False,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendFrame(opcode = 11)
-      self.p.killAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+            "requireClean": False,
+        }
+        self.p.sendFrame(opcode=11)
+        self.p.killAfter(1)

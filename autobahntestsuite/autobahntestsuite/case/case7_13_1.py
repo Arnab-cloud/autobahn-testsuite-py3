@@ -16,32 +16,37 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
 
 
 class Case7_13_1(Case):
+    DESCRIPTION = """Send close with close code 5000"""
 
-   DESCRIPTION = """Send close with close code 5000"""
+    EXPECTATION = """Actual events are undefined by the spec."""
 
-   EXPECTATION = """Actual events are undefined by the spec."""
-   
-   def init(self):
-      self.code = 5000
-      self.suppressClose = True
-   
-   def onConnectionLost(self, failedByMe):
-      Case.onConnectionLost(self, failedByMe)
-      
-      self.passed = True
-      self.behavior = Case.INFORMATIONAL
-      self.behaviorClose = Case.INFORMATIONAL
-      self.result = "Actual events are undefined by the spec."
-   
-   def onOpen(self):
-      self.payload = '\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5\xed\xa0\x80\x65\x64\x69\x74\x65\x64'
-      self.expected[Case.OK] = []      
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL,self.code,self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendCloseFrame(self.code)
-      self.p.killAfter(1)
+    def init(self):
+        self.code = 5000
+        self.suppressClose = True
 
-      
+    def onConnectionLost(self, failedByMe):
+        Case.onConnectionLost(self, failedByMe)
+
+        self.passed = True
+        self.behavior = Case.INFORMATIONAL
+        self.behaviorClose = Case.INFORMATIONAL
+        self.result = "Actual events are undefined by the spec."
+
+    def onOpen(self):
+        self.payload = "\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5\xed\xa0\x80\x65\x64\x69\x74\x65\x64"
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [
+                self.p.CLOSE_STATUS_CODE_NORMAL,
+                self.code,
+                self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR,
+            ],
+            "requireClean": False,
+        }
+        self.p.sendCloseFrame(self.code)
+        self.p.killAfter(1)

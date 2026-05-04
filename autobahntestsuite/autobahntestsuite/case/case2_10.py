@@ -16,22 +16,26 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case2_10(Case):
+    DESCRIPTION = """Send 10 Pings with payload."""
 
-   DESCRIPTION = """Send 10 Pings with payload."""
+    EXPECTATION = """Pongs for our Pings with all the payloads. Note: This is not required by the Spec .. but we check for this behaviour anyway. Clean close with normal code."""
 
-   EXPECTATION = """Pongs for our Pings with all the payloads. Note: This is not required by the Spec .. but we check for this behaviour anyway. Clean close with normal code."""
+    def init(self):
+        self.chopsize = None
 
-   def init(self):
-      self.chopsize = None
-
-   def onOpen(self):
-      self.expected[Case.OK] = []
-      for i in xrange(0, 10):
-         payload = "payload-%d" % i
-         self.expected[Case.OK].append(("pong", payload))
-         self.p.sendFrame(opcode = 9, payload = payload, chopsize = self.chopsize)
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.closeAfter(3)
+    def onOpen(self):
+        self.expected[Case.OK] = []
+        for i in range(0, 10):
+            payload = "payload-%d" % i
+            self.expected[Case.OK].append(("pong", payload.encode()))
+            self.p.sendFrame(opcode=9, payload=payload, chopsize=self.chopsize)
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.closeAfter(3)

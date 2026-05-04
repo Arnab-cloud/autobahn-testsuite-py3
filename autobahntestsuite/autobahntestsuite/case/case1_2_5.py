@@ -16,17 +16,21 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case1_2_5(Case):
+    DESCRIPTION = """Send binary message message with payload of length 128."""
 
-   DESCRIPTION = """Send binary message message with payload of length 128."""
+    EXPECTATION = """Receive echo'ed binary message (with payload as sent). Clean close with normal code."""
 
-   EXPECTATION = """Receive echo'ed binary message (with payload as sent). Clean close with normal code."""
-
-   def onOpen(self):
-      payload = "\xfe" * 128
-      self.expected[Case.OK] = [("message", payload, True)]
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendFrame(opcode = 2, payload = payload)
-      self.p.killAfter(1)
+    def onOpen(self):
+        payload = b"\xfe" * 128
+        self.expected[Case.OK] = [("message", payload, True)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=2, payload=payload)
+        self.p.killAfter(1)

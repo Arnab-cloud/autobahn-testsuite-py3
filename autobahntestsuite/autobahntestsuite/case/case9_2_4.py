@@ -16,16 +16,18 @@
 ##
 ###############################################################################
 
-from case9_2_1 import *
+from autobahntestsuite.case.case9_2_1 import Case9_2_1
+
 
 class Case9_2_4(Case9_2_1):
+    DESCRIPTION = (
+        """Send binary message message with payload of length 4 * 2**20 (4M)."""
+    )
 
-   DESCRIPTION = """Send binary message message with payload of length 4 * 2**20 (4M)."""
+    EXPECTATION = """Receive echo'ed binary message (with payload as sent)."""
 
-   EXPECTATION = """Receive echo'ed binary message (with payload as sent)."""
-
-   def init(self):
-      self.DATALEN = 4 * 2**20
-      self.PAYLOAD = "\x00\xfe\x23\xfa\xf0"
-      self.WAITSECS = 10
-      self.reportTime = True
+    def init(self):
+        self.DATALEN = 4 * 2**20
+        self.PAYLOAD = "\x00\xfe\x23\xfa\xf0"
+        self.WAITSECS = 10
+        self.reportTime = True

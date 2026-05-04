@@ -16,18 +16,22 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case5_3(Case):
+    DESCRIPTION = """Send text Message fragmented into 2 fragments."""
 
-   DESCRIPTION = """Send text Message fragmented into 2 fragments."""
+    EXPECTATION = """Message is processed and echo'ed back to us."""
 
-   EXPECTATION = """Message is processed and echo'ed back to us."""
-
-   def onOpen(self):
-      fragments = ["fragment1", "fragment2"]
-      self.expected[Case.OK] = [("message", ''.join(fragments), False)]
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendFrame(opcode = 1, fin = False, payload = fragments[0])
-      self.p.sendFrame(opcode = 0, fin = True, payload = fragments[1])
-      self.p.closeAfter(1)
+    def onOpen(self):
+        fragments = ["fragment1", "fragment2"]
+        self.expected[Case.OK] = [("message", "".join(fragments), False)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=1, fin=False, payload=fragments[0])
+        self.p.sendFrame(opcode=0, fin=True, payload=fragments[1])
+        self.p.closeAfter(1)

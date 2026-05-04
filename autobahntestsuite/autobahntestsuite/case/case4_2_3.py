@@ -16,20 +16,24 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case4_2_3(Case):
+    DESCRIPTION = """Send small text message, then send frame with reserved control <b>Opcode = 13</b>, then send Ping."""
 
-   DESCRIPTION = """Send small text message, then send frame with reserved control <b>Opcode = 13</b>, then send Ping."""
+    EXPECTATION = """Echo for first message is received, but then connection is failed immediately, since reserved opcode frame is used. A Pong is not received."""
 
-   EXPECTATION = """Echo for first message is received, but then connection is failed immediately, since reserved opcode frame is used. A Pong is not received."""
-
-   def onOpen(self):
-      payload = "Hello, world!"
-      self.expected[Case.OK] = [("message", payload, False)]
-      self.expected[Case.NON_STRICT] = []
-      self.expectedClose = {"closedByMe":False,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendFrame(opcode = 1, payload = payload)
-      self.p.sendFrame(opcode = 13)
-      self.p.sendFrame(opcode = 9)
-      self.p.killAfter(1)
+    def onOpen(self):
+        payload = "Hello, world!"
+        self.expected[Case.OK] = [("message", payload, False)]
+        self.expected[Case.NON_STRICT] = []
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+            "requireClean": False,
+        }
+        self.p.sendFrame(opcode=1, payload=payload)
+        self.p.sendFrame(opcode=13)
+        self.p.sendFrame(opcode=9)
+        self.p.killAfter(1)

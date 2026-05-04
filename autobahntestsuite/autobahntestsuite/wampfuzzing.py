@@ -112,9 +112,9 @@ class FuzzingWampClient(object):
       for obj in spec['testees']:
          testee = Testee(**obj)
          cases = casesByTestee.get(testee.name, [])
-         if testee.options.has_key('randomize') and testee.options['randomize'] is not None:
+         if testee.options.get('randomize') and testee.options['randomize'] is not None:
             randomize = testee.options['randomize']
-         elif spec.has_key('options') and spec['options'].has_key('randomize') and spec['options']['randomize'] is not None:
+         elif spec.get('options') and spec['options'].has_key('randomize') and spec['options']['randomize'] is not None:
             randomize = spec['options']['randomize']
          else:
             randomize = False
@@ -123,18 +123,18 @@ class FuzzingWampClient(object):
 
       runId = yield self._testDb.newRun(specId)
 
-      print
-      print "Autobahn Fuzzing WAMP Client"
-      print
-      print "Autobahn Version          : %s" % autobahn.version
-      print "AutobahnTestsuite Version : %s" % autobahntestsuite.version
-      #print "WAMP Test Cases           : %d" % len(self._caseSet.Cases)
-      print "WAMP Testees              : %d" % len(spec["testees"])
-      print
+      print()
+      print("Autobahn Fuzzing WAMP Client")
+      print()
+      print("Autobahn Version          : %s" % autobahn.version)
+      print("AutobahnTestsuite Version : %s" % autobahntestsuite.version)
+      #print("WAMP Test Cases           : %d" % len(self._caseSet.Cases))
+      print("WAMP Testees              : %d" % len(spec["testees"]))
+      print()
       for testRun in testRuns:
-         print "%s @ %s : %d test cases prepared" % (testRun.testee.name, testRun.testee.url, testRun.remaining())
-      print
-      print
+         print("%s @ %s : %d test cases prepared" % (testRun.testee.name, testRun.testee.url, testRun.remaining()))
+      print()
+      print()
 
       def progress(runId, testRun, testCase, result, remaining):
          for obsv in _observers:
@@ -177,12 +177,12 @@ class FuzzingWampClient(object):
                try:
                   testCase = TestCase(testRun.testee, spec)
                except Exception, e:
-                  print "ERROR 1", e
+                  print("ERROR 1", e)
                else:
                   try:
                      result = yield testCase.run()
                   except Exception, e:
-                     print "ERROR 2", e
+                     print("ERROR 2", e)
                if not result.passed:
                   fails += 1
                pres = yield progress(runId, testRun, testCase, result, testRun.remaining())
@@ -237,25 +237,25 @@ def startFuzzingWampClient(self, specName):
 
    def progress(runId, testRun, testCase, result, remaining):
       if testCase:
-         print "%s - %s %s (%d tests remaining)" % (testRun.testee.name, "PASSED   : " if result.passed else "FAILED  : ", testCase.__class__.__name__, remaining)
+         print("%s - %s %s (%d tests remaining)" % (testRun.testee.name, "PASSED   : " if result.passed else "FAILED  : ", testCase.__class__.__name__, remaining))
       else:
-         print "FINISHED : Test run for testee '%s' ended." % testRun.testee.name
+         print("FINISHED : Test run for testee '%s' ended." % testRun.testee.name)
 
    runId, resultIds = yield testRunner.runAndObserve(specName, [progress])
 
-   print
-   print "Tests finished: run ID %s, result IDs %d" % (runId, len(resultIds))
-   print
+   print()
+   print("Tests finished: run ID %s, result IDs %d" % (runId, len(resultIds)))
+   print()
 
    summary = yield testDb.getTestRunSummary(runId)
 
    tab = Tabify(['l32', 'r5', 'r5'])
-   print
-   print tab.tabify(['Testee', 'Pass', 'Fail'])
-   print tab.tabify()
+   print()
+   print (tab.tabify(['Testee', 'Pass', 'Fail']))
+   print (tab.tabify())
    for t in summary:
-      print tab.tabify([t['name'], t['passed'], t['failed']])
-   print
+      print (tab.tabify([t['name'], t['passed'], t['failed']]))
+   print()
 
 
 def startImportSpec(self, specFilename):
@@ -263,7 +263,7 @@ def startImportSpec(self, specFilename):
    Import a test specification into the test database.
    """
    specFilename = os.path.abspath(specFilename)
-   print "Importing spec from %s ..." % specFilename
+   print("Importing spec from %s ..." % specFilename)
    try:
       spec = json.loads(open(specFilename).read())
    except Exception, e:
@@ -277,15 +277,15 @@ def startImportSpec(self, specFilename):
    def done(res):
       op, id, name = res
       if op is None:
-         print "Spec under name '%s' already imported and unchanged (Object ID %s)." % (name, id)
+         print("Spec under name '%s' already imported and unchanged (Object ID %s)." % (name, id))
       elif op == 'U':
-         print "Updated spec under name '%s' (Object ID %s)." % (name, id)
+         print("Updated spec under name '%s' (Object ID %s)." % (name, id))
       elif op == 'I':
-         print "Imported spec under new name '%s' (Object ID %s)." % (name, id)
-      print
+         print("Imported spec under new name '%s' (Object ID %s)." % (name, id))
+      print()
 
    def failed(failure):
-      print "Error: spec import failed - %s." % failure.value
+      print("Error: spec import failed - %s." % failure.value)
 
    d = db.importSpec(spec)
    d.addCallbacks(done, failed)
@@ -311,12 +311,12 @@ def startExportSpec(self, specName, specFilename = None):
       fout.write(data)
       fout.write('\n')
       if specFilename:
-         print "Exported spec '%s' to %s." % (specName, specFilename)
-         print
+         print("Exported spec '%s' to %s." % (specName, specFilename))
+         print()
 
    def failed(failure):
-      print "Error: spec export failed - %s" % failure.value
-      print
+      print("Error: spec export failed - %s" % failure.value)
+      print()
 
    d = db.getSpecByName(specName)
    d.addCallbacks(done, failed)
@@ -465,19 +465,19 @@ def startFuzzingService(self):
 
       runId, resultIds = yield testRunner.run(spec)
 
-      print
-      print "Tests finished: run ID %s, result IDs %d" % (runId, len(resultIds))
-      print
+      print()
+      print("Tests finished: run ID %s, result IDs %d" % (runId, len(resultIds)))
+      print()
 
       summary = yield testDb.getTestRunSummary(runId)
       tab = Tabify(['l32', 'r5', 'r5'])
-      print
-      print tab.tabify(['Testee', 'Pass', 'Fail'])
-      print tab.tabify()
+      print()
+      print (tab.tabify(['Testee', 'Pass', 'Fail']))
+      print (tab.tabify())
       #for t in sorted(summary.keys()):
       for t in summary:
-         print tab.tabify([t['name'], t['passed'], t['failed']])
-      print
+         print (tab.tabify([t['name'], t['passed'], t['failed']]))
+      print()
 
       #for rid in resultIds:
       #   res = yield testDb.getResult(rid)
@@ -491,4 +491,3 @@ def startFuzzingService(self):
 
    else:
       raise Exception("logic error")
-

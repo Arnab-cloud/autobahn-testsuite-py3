@@ -16,17 +16,21 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case2_7(Case):
+    DESCRIPTION = """Send unsolicited pong without payload. Verify nothing is received. Clean close with normal code."""
 
-   DESCRIPTION = """Send unsolicited pong without payload. Verify nothing is received. Clean close with normal code."""
+    EXPECTATION = """Nothing."""
 
-   EXPECTATION = """Nothing."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = []
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendFrame(opcode = 10)
-      self.p.sendClose(self.p.CLOSE_STATUS_CODE_NORMAL)
-      self.p.closeAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=10)
+        self.p.sendClose(self.p.CLOSE_STATUS_CODE_NORMAL)
+        self.p.closeAfter(1)

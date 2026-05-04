@@ -16,18 +16,22 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case2_3(Case):
+    DESCRIPTION = """Send ping with small binary (non UTF-8) payload."""
 
-   DESCRIPTION = """Send ping with small binary (non UTF-8) payload."""
+    EXPECTATION = """Pong with payload echo'ed is sent in reply to Ping. Clean close with normal code."""
 
-   EXPECTATION = """Pong with payload echo'ed is sent in reply to Ping. Clean close with normal code."""
+    def onOpen(self):
+        payload = b"\x00\xff\xfe\xfd\xfc\xfb\x00\xff"
 
-   def onOpen(self):
-      payload = "\x00\xff\xfe\xfd\xfc\xfb\x00\xff"
-      
-      self.expected[Case.OK] = [("pong", payload)]
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendFrame(opcode = 9, payload = payload)
-      self.p.closeAfter(1)
+        self.expected[Case.OK] = [("pong", payload)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=9, payload=payload)
+        self.p.closeAfter(1)

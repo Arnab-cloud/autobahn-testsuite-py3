@@ -16,16 +16,16 @@
 ##
 ###############################################################################
 
-from case5_19 import *
+from autobahntestsuite.case.case5_19 import Case5_19
+
 
 class Case5_20(Case5_19):
-
-   DESCRIPTION = """Same as Case 5.19, but send all frames with SYNC = True.
+    DESCRIPTION = """Same as Case 5.19, but send all frames with SYNC = True.
    Note, this does not change the octets sent in any way, only how the stream
    is chopped up on the wire."""
 
-   EXPECTATION = """Same as Case 5.19. Implementations must be agnostic to how
+    EXPECTATION = """Same as Case 5.19. Implementations must be agnostic to how
    octet stream is chopped up on wire (must be TCP clean)."""
 
-   def init(self):
-      self.sync = True
+    def init(self):
+        self.sync = True

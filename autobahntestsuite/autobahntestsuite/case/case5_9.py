@@ -16,18 +16,21 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case5_9(Case):
+    DESCRIPTION = """Send unfragmented Text Message after Continuation Frame with FIN = true, where there is nothing to continue, sent in one chop."""
 
-   DESCRIPTION = """Send unfragmented Text Message after Continuation Frame with FIN = true, where there is nothing to continue, sent in one chop."""
+    EXPECTATION = """The connection is failed immediately, since there is no message to continue."""
 
-   EXPECTATION = """The connection is failed immediately, since there is no message to continue."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = []
-      self.expectedClose = {"closedByMe":False,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendFrame(opcode = 0, fin = True, payload = "non-continuation payload")
-      self.p.sendFrame(opcode = 1, fin = True, payload = "Hello, world!")
-      self.p.killAfter(1)
-
+    def onOpen(self):
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": False,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+            "requireClean": False,
+        }
+        self.p.sendFrame(opcode=0, fin=True, payload="non-continuation payload")
+        self.p.sendFrame(opcode=1, fin=True, payload="Hello, world!")
+        self.p.killAfter(1)

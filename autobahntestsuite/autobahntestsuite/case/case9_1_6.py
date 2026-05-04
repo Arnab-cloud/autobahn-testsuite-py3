@@ -16,16 +16,18 @@
 ##
 ###############################################################################
 
-from case9_1_1 import *
+from autobahntestsuite.case.case9_1_1 import Case9_1_1
+
 
 class Case9_1_6(Case9_1_1):
+    DESCRIPTION = (
+        """Send text message message with payload of length 16 * 2**20 (16M)."""
+    )
 
-   DESCRIPTION = """Send text message message with payload of length 16 * 2**20 (16M)."""
+    EXPECTATION = """Receive echo'ed text message (with payload as sent)."""
 
-   EXPECTATION = """Receive echo'ed text message (with payload as sent)."""
-
-   def init(self):
-      self.DATALEN = 16 * 2**20
-      self.PAYLOAD = "BAsd7&jh23"
-      self.WAITSECS = 100
-      self.reportTime = True
+    def init(self):
+        self.DATALEN = 16 * 2**20
+        self.PAYLOAD = "BAsd7&jh23"
+        self.WAITSECS = 100
+        self.reportTime = True

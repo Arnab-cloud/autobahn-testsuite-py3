@@ -16,27 +16,31 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case7_3_2(Case):
+    DESCRIPTION = """Send a close frame with payload length 1"""
 
-   DESCRIPTION = """Send a close frame with payload length 1"""
+    EXPECTATION = """Clean close with protocol error or drop TCP."""
 
-   EXPECTATION = """Clean close with protocol error or drop TCP."""
+    def init(self):
+        self.suppressClose = True
 
-   def init(self):
-      self.suppressClose = True
+    def onConnectionLost(self, failedByMe):
+        Case.onConnectionLost(self, failedByMe)
 
-   def onConnectionLost(self, failedByMe):
-      Case.onConnectionLost(self, failedByMe)
+        if self.behaviorClose == Case.WRONG_CODE:
+            self.behavior = Case.FAILED
+            self.passed = False
+            self.result = self.resultClose
 
-      if self.behaviorClose == Case.WRONG_CODE:
-         self.behavior = Case.FAILED
-         self.passed = False
-         self.result = self.resultClose
-
-   def onOpen(self):
-      self.expected[Case.OK] = []
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],"requireClean":False}
-      self.p.sendCloseFrame(reasonUtf8 = "a")
-      self.p.killAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_PROTOCOL_ERROR],
+            "requireClean": False,
+        }
+        self.p.sendCloseFrame(reasonUtf8="a".encode())
+        self.p.killAfter(1)

@@ -18,24 +18,35 @@
 ##
 ###############################################################################
 
-from case import Case
 import binascii
 
+from autobahntestsuite.case.case import Case
+
+
 class Case6_2_2(Case):
+    PAYLOAD1 = "Hello-µ@ßöä"
+    PAYLOAD2 = "üàá-UTF-8!!"
 
-   PAYLOAD1 = "Hello-µ@ßöä"
-   PAYLOAD2 = "üàá-UTF-8!!"
+    DESCRIPTION = (
+        """Send a valid UTF-8 text message in two fragments, fragmented on UTF-8 code point boundary.<br><br>MESSAGE FRAGMENT 1:<br>%s<br>%s<br><br>MESSAGE FRAGMENT 2:<br>%s<br>%s"""
+        % (
+            PAYLOAD1,
+            binascii.b2a_hex(PAYLOAD1.encode()),
+            PAYLOAD2.encode(),
+            binascii.b2a_hex(PAYLOAD2.encode()),
+        )
+    )
 
-   DESCRIPTION = """Send a valid UTF-8 text message in two fragments, fragmented on UTF-8 code point boundary.<br><br>MESSAGE FRAGMENT 1:<br>%s<br>%s<br><br>MESSAGE FRAGMENT 2:<br>%s<br>%s""" % (PAYLOAD1, binascii.b2a_hex(PAYLOAD1), PAYLOAD2, binascii.b2a_hex(PAYLOAD2))
+    EXPECTATION = """The message is echo'ed back to us."""
 
-   EXPECTATION = """The message is echo'ed back to us."""
+    def onOpen(self):
 
-   def onOpen(self):
-
-      self.expected[Case.OK] = [("message", self.PAYLOAD1 + self.PAYLOAD2, False)]
-      self.expectedClose = {"closedByMe": True,
-                            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
-                            "requireClean": True}
-      self.p.sendFrame(opcode = 1, fin = False, payload = self.PAYLOAD1)
-      self.p.sendFrame(opcode = 0, fin = True, payload = self.PAYLOAD2)
-      self.p.closeAfter(1)
+        self.expected[Case.OK] = [("message", self.PAYLOAD1 + self.PAYLOAD2, False)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=1, fin=False, payload=self.PAYLOAD1)
+        self.p.sendFrame(opcode=0, fin=True, payload=self.PAYLOAD2)
+        self.p.closeAfter(1)

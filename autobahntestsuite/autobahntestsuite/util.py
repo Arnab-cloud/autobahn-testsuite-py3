@@ -101,7 +101,7 @@ class Tabify:
       totalLen = 0
       flexIndicators = 0
       flexIndicatorIndex = None
-      for i in xrange(len(self._formats)):
+      for i in range(len(self._formats)):
          ffmt = self._formats[i][1:]
          if ffmt != "*":
             totalLen += int(ffmt)
@@ -120,7 +120,7 @@ class Tabify:
          raise Exception("cannot fit content in truncate length %d" % self._truncate)
 
       r = []
-      for i in xrange(len(self._formats)):
+      for i in range(len(self._formats)):
 
          if i == flexIndicatorIndex:
             N = self._truncate - totalLen

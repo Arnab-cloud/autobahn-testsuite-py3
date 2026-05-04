@@ -54,7 +54,7 @@ class WampCase4_1_1_Protocol(WampCaseProtocol):
       expected = self.factory.result.expected
       observed = self.factory.result.observed
 
-      for i in xrange(self.factory.test.params.subsCount):
+      for i in range(self.factory.test.params.subsCount):
 
          topic = "http://example.com/simple#" + str(random.randint(0, self.factory.test.params.topicCount))
          self.subscribe(topic, self.onEvent)
@@ -76,7 +76,7 @@ class WampCase4_1_1_Protocol(WampCaseProtocol):
       expected = self.factory.result.expected
       rcnt = 0
       for e in expected:
-         if expected[e].has_key(topic):
+         if expected[e].get(topic):
             expected[e][topic] += 1
             rcnt += 1
       self.factory.totalExpected += rcnt
@@ -84,7 +84,7 @@ class WampCase4_1_1_Protocol(WampCaseProtocol):
 
    def onEvent(self, topic, event):
       observed = self.factory.result.observed[self.session_id]
-      if not observed.has_key(topic):
+      if not observed.get(topic):
          observed[topic] = 0
       observed[topic] += 1
       self.factory.totalObserved += 1
@@ -123,9 +123,9 @@ class WampCase4_1_1(WampCase):
    def test(self, log, result, clients):
       msg = "NOP test running using %d sessions\n" % len(clients)
       log(msg)
-      print msg
+      print(msg)
 
-      for i in xrange(self.params.pubsCount):
+      for i in range(self.params.pubsCount):
          j = random.randint(0, len(clients) - 1)
          clients[j].proto.monkeyPublish("Hello, world!")
       result.passed = True
@@ -137,19 +137,18 @@ class WampCase4_1_1(WampCase):
          log("Continuing test ..")
 
          if False:
-            print
-            print "Expected:"
+            print("\nExpected:")
             for r in result.expected:
-               print r
+               print (r)
                pprint(result.expected[r])
-               print
+               print()
 
-            print
-            print "Observed:"
+            print()
+            print("Observed:")
             for r in result.observed:
-               print r
+               print (r)
                pprint(result.observed[r])
-               print
+               print()
 
          result.passed = json.dumps(result.observed) == json.dumps(result.expected)
 

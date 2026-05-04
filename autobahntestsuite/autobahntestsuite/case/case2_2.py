@@ -16,17 +16,22 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case2_2(Case):
+    DESCRIPTION = """Send ping with small text payload."""
 
-   DESCRIPTION = """Send ping with small text payload."""
+    EXPECTATION = """Pong with payload echo'ed is sent in reply to Ping. Clean close with normal code."""
 
-   EXPECTATION = """Pong with payload echo'ed is sent in reply to Ping. Clean close with normal code."""
+    def onOpen(self):
+        payload = "Hello, world!"
 
-   def onOpen(self):
-      payload = "Hello, world!"
-      self.expected[Case.OK] = [("pong", payload)]
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendFrame(opcode = 9, payload = payload)
-      self.p.closeAfter(1)
+        self.expected[Case.OK] = [("pong", payload.encode())]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=9, payload=payload)
+        self.p.closeAfter(1)

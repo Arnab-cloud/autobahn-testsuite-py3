@@ -18,22 +18,28 @@
 ##
 ###############################################################################
 
-from case import Case
 import binascii
 
+from autobahntestsuite.case.case import Case
+
+
 class Case6_2_1(Case):
+    PAYLOAD = "Hello-µ@ßöäüàá-UTF-8!!"
 
-   PAYLOAD = "Hello-µ@ßöäüàá-UTF-8!!"
+    DESCRIPTION = (
+        """Send a valid UTF-8 text message in one fragment.<br><br>MESSAGE:<br>%s<br>%s"""
+        % (PAYLOAD, binascii.b2a_hex(PAYLOAD.encode()))
+    )
 
-   DESCRIPTION = """Send a valid UTF-8 text message in one fragment.<br><br>MESSAGE:<br>%s<br>%s""" % (PAYLOAD, binascii.b2a_hex(PAYLOAD))
+    EXPECTATION = """The message is echo'ed back to us."""
 
-   EXPECTATION = """The message is echo'ed back to us."""
+    def onOpen(self):
 
-   def onOpen(self):
-
-      self.expected[Case.OK] = [("message", self.PAYLOAD, False)]
-      self.expectedClose = {"closedByMe": True,
-                            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
-                            "requireClean": True}
-      self.p.sendMessage(self.PAYLOAD, isBinary = False)
-      self.p.closeAfter(1)
+        self.expected[Case.OK] = [("message", self.PAYLOAD, False)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendMessage(self.PAYLOAD, isBinary=False)
+        self.p.closeAfter(1)

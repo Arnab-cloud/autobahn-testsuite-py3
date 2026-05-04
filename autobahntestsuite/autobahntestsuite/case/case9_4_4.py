@@ -16,17 +16,17 @@
 ##
 ###############################################################################
 
-from case9_4_1 import Case9_4_1
+from autobahntestsuite.case.case9_4_1 import Case9_4_1
+
 
 class Case9_4_4(Case9_4_1):
+    DESCRIPTION = """Send fragmented binary message message with message payload of length 4 * 2**20 (4M). Sent out in fragments of 4k."""
 
-   DESCRIPTION = """Send fragmented binary message message with message payload of length 4 * 2**20 (4M). Sent out in fragments of 4k."""
+    EXPECTATION = """Receive echo'ed binary message (with payload as sent)."""
 
-   EXPECTATION = """Receive echo'ed binary message (with payload as sent)."""
-
-   def init(self):
-      self.DATALEN = 4 * 2**20
-      self.FRAGSIZE = 4 * 2**10
-      self.PAYLOAD = "*" * self.DATALEN
-      self.WAITSECS = 100
-      self.reportTime = True
+    def init(self):
+        self.DATALEN = 4 * 2**20
+        self.FRAGSIZE = 4 * 2**10
+        self.PAYLOAD = "*" * self.DATALEN
+        self.WAITSECS = 100
+        self.reportTime = True

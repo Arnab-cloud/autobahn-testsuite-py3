@@ -16,7 +16,7 @@
 ##
 ###############################################################################
 
-from _version import __version__
+from autobahntestsuite._version import __version__
 
 version = __version__  # backward compat.
 
@@ -27,20 +27,20 @@ warnings.filterwarnings(
     "ignore", message="Python 2 is no longer supported by the Python core team.*"
 )
 
-import choosereactor  # This MUST BE the FIRST file imported here! Do NOT touch.
-import wstest
-import echo
-import broadcast
-import testee
+import autobahntestsuite.broadcast
 
 # import wsperfcontrol
 # import wsperfmaster
-import case
-import caseset
-import report
-import spectemplate
-import fuzzing
+import autobahntestsuite.case
+import autobahntestsuite.caseset
+import autobahntestsuite.choosereactor  # This MUST BE the FIRST file imported here! Do NOT touch.
+import autobahntestsuite.echo
+import autobahntestsuite.fuzzing
 
 # import wampfuzzing
 # import wamptestserver
-import massconnect
+import autobahntestsuite.massconnect
+import autobahntestsuite.report
+import autobahntestsuite.spectemplate
+import autobahntestsuite.testee
+import autobahntestsuite.wstest

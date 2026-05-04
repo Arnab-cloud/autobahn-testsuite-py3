@@ -16,31 +16,33 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case7_1_4(Case):
+    DESCRIPTION = """Send text message after sending a close frame."""
 
-   DESCRIPTION = """Send text message after sending a close frame."""
+    EXPECTATION = """Clean close with normal code. Text message ignored."""
 
-   EXPECTATION = """Clean close with normal code. Text message ignored."""
-   
-   def init(self):
-      self.suppressClose = True
+    def init(self):
+        self.suppressClose = True
 
-   def onConnectionLost(self, failedByMe):
-      Case.onConnectionLost(self, failedByMe)
-      
-      if self.behaviorClose == Case.WRONG_CODE:
-         self.behavior = Case.FAILED
-         self.passed = False
-         self.result = self.resultClose
+    def onConnectionLost(self, failedByMe):
+        Case.onConnectionLost(self, failedByMe)
 
-   def onOpen(self):
-      payload = "Hello World!"
-      self.expected[Case.OK] = []      
-      self.expectedClose = {"closedByMe":True,"closeCode":[self.p.CLOSE_STATUS_CODE_NORMAL],"requireClean":True}
-      self.p.sendClose(self.p.CLOSE_STATUS_CODE_NORMAL)
-      self.p.sendFrame(opcode = 1, payload = payload)
-      self.p.killAfter(1)
+        if self.behaviorClose == Case.WRONG_CODE:
+            self.behavior = Case.FAILED
+            self.passed = False
+            self.result = self.resultClose
 
-      
+    def onOpen(self):
+        payload = "Hello World!"
+        self.expected[Case.OK] = []
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendClose(self.p.CLOSE_STATUS_CODE_NORMAL)
+        self.p.sendFrame(opcode=1, payload=payload)
+        self.p.killAfter(1)

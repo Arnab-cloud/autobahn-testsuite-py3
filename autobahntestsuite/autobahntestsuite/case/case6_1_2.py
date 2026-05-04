@@ -16,20 +16,22 @@
 ##
 ###############################################################################
 
-from case import Case
+from autobahntestsuite.case.case import Case
+
 
 class Case6_1_2(Case):
+    DESCRIPTION = """Send fragmented text message, 3 fragments each of length 0."""
 
-   DESCRIPTION = """Send fragmented text message, 3 fragments each of length 0."""
+    EXPECTATION = """A message is echo'ed back to us (with empty payload)."""
 
-   EXPECTATION = """A message is echo'ed back to us (with empty payload)."""
-
-   def onOpen(self):
-      self.expected[Case.OK] = [("message", "", False)]
-      self.expectedClose = {"closedByMe": True,
-                            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
-                            "requireClean": True}
-      self.p.sendFrame(opcode = 1, fin = False, payload = "")
-      self.p.sendFrame(opcode = 0, fin = False, payload = "")
-      self.p.sendFrame(opcode = 0, fin = True, payload = "")
-      self.p.closeAfter(1)
+    def onOpen(self):
+        self.expected[Case.OK] = [("message", "", False)]
+        self.expectedClose = {
+            "closedByMe": True,
+            "closeCode": [self.p.CLOSE_STATUS_CODE_NORMAL],
+            "requireClean": True,
+        }
+        self.p.sendFrame(opcode=1, fin=False, payload="")
+        self.p.sendFrame(opcode=0, fin=False, payload="")
+        self.p.sendFrame(opcode=0, fin=True, payload="")
+        self.p.closeAfter(1)

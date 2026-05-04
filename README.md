@@ -1,3 +1,10 @@
+# Autobahn|Testsuite (Python 3 Port)
+
+This is a modernized version of the original [autobahn-testsuite](https://github.com/crossbario/autobahn-testsuite).
+The core objective was to migrate the legacy Python 2 codebase to Python 3.10+, specifically addressing the complex `str` vs `bytes` dichotomy in WebSocket payloads.
+
+> _In this port, minimum amount of changes were intended. The portions that did not requried change were kept as it is (this includes build scripts and docker configurations and also this README.md). This port is not available in `PyPI`. The intended use is thorugh the [wstest.py](./autobahntestsuite/autobahntestsuite/wstest.py) script in a python 3 environment. Please refer to the [How To Use](#how-to-use) section for more details_
+
 # Autobahn|Testsuite
 
 WebSocket protocol implementation conformance test suite.
@@ -16,24 +23,22 @@ The **Autobahn**|Testsuite provides a fully automated test suite to verify clien
 **What users are saying:**
 
 > "Autobahn was a huge help during the standardization and early development of WebSocket in [Firefox](www.mozilla.org/firefox). It helped find many nasty corner conditions in a clean and repeatable way.
-Interoperation testing like this really moves the Open Web forward."
-**Patrick McManus, [Mozilla](http://www.mozilla.org/) [Firefox](www.mozilla.org/firefox)**
+> Interoperation testing like this really moves the Open Web forward."
+> **Patrick McManus, [Mozilla](http://www.mozilla.org/) [Firefox](www.mozilla.org/firefox)**
 
 > "The [Jetty project](http://eclipse.org/jetty) has been active in the development of the websocket protocol and lack of a comprehensive test suite was an impediment to the standardisation of the protocol. The Autobahn test suit has filled that void and been warmly embraced by our websocket engineers at [Intalio](http://www.intalio.com/products/jetty/overview/) as it has been invaluable for evaluating the protocol development, improving inter operability and monitoring adoption of new/optional features.
-*Our own implementation and the wider websocket 'ecosystem' are significantly better due to the availability of Autobahn*."
-**Greg Wilkins, [Jetty](http://eclipse.org/jetty) author, Chief Architect at [Intalio](http://www.intalio.com/)**
+> _Our own implementation and the wider websocket 'ecosystem' are significantly better due to the availability of Autobahn_."
+> **Greg Wilkins, [Jetty](http://eclipse.org/jetty) author, Chief Architect at [Intalio](http://www.intalio.com/)**
 
 > "During the time of implementing the latest WebSocket version in [Netty](http://netty.io/) and [Undertow](https://github.com/undertow-io/undertow) we were searching for a way to test our implementations and make sure they are 100% RFC compliant. While we already had unit tests in place there was a lack of good tests for the whole implementation. Using the AutobahnTestsuite for this purpose allowed us to concentrate on the implementation and made it easy to catch regressions as soon as possible."
-**Norman Maurer, Principal Software Engineer at [Red Hat](http://www.redhat.com/)**
-
+> **Norman Maurer, Principal Software Engineer at [Red Hat](http://www.redhat.com/)**
 
 ## Reports
 
 For some current reports on the test coverage of [Autobahn|Python](https://github.com/crossbario/autobahn-python) see
 
-* [WebSocket client functionality](https://crossbar.io/autobahn/testsuite/reports/clients/index.html)
-* [WebSocket server functionality](https://crossbar.io/autobahn/testsuite/reports/servers/index.html)
-
+- [WebSocket client functionality](https://crossbar.io/autobahn/testsuite/reports/clients/index.html)
+- [WebSocket server functionality](https://crossbar.io/autobahn/testsuite/reports/servers/index.html)
 
 ## Test Suite Coverage
 
@@ -43,30 +48,28 @@ and limits testing.
 
 **Autobahn**|Testsuite is used across the industry and contains over 500 test cases covering
 
-* Framing
-* Pings/Pongs
-* Reserved Bits
-* Opcodes
-* Fragmentation
-* UTF-8 Handling
-* Limits/Performance
-* Closing Handshake
-* Opening Handshake (under development)
-* WebSocket compression ([permessage-deflate extension](https://tools.ietf.org/html/draft-ietf-hybi-permessage-compression))
-
+- Framing
+- Pings/Pongs
+- Reserved Bits
+- Opcodes
+- Fragmentation
+- UTF-8 Handling
+- Limits/Performance
+- Closing Handshake
+- Opening Handshake (under development)
+- WebSocket compression ([permessage-deflate extension](https://tools.ietf.org/html/draft-ietf-hybi-permessage-compression))
 
 ## Other Tools
 
 Besides the automated testsuite (aka "fuzzing" server/client), **wstest**
 also includes a number of other handy modes:
 
-* WebSocket echo server and client
-* WebSocket broadcast server (and client driver)
-* Testee modes to test [AutobahnPython](https://autobahn-testsuite.readthedocs.io/) against the test suite
-* **wsperf** controller and master (see below for more)
-* WAMP server and client, for developing WAMP implementations
-* WebSocket Mass-Connect
-
+- WebSocket echo server and client
+- WebSocket broadcast server (and client driver)
+- Testee modes to test [AutobahnPython](https://autobahn-testsuite.readthedocs.io/) against the test suite
+- **wsperf** controller and master (see below for more)
+- WAMP server and client, for developing WAMP implementations
+- WebSocket Mass-Connect
 
 ## Users
 
@@ -128,7 +131,6 @@ Autobahn|Testsuite is used by numerous projects and companies across the industr
 </div>
 <div style="clear: both;"></div>
 
-
 ## Installation
 
 🧊 Legacy Compatibility Note
@@ -167,19 +169,15 @@ Above will mount an (included) test configuration from the [docker/config](confi
 
 ```json
 {
-    "url": "ws://127.0.0.1:9001",
-    "outdir": "./reports/clients",
-    "cases": ["*"],
-    "exclude-cases": [
-        "9.*",
-        "12.*",
-        "13.*"
-    ],
-    "exclude-agent-cases": {}
+  "url": "ws://127.0.0.1:9001",
+  "outdir": "./reports/clients",
+  "cases": ["*"],
+  "exclude-cases": ["9.*", "12.*", "13.*"],
+  "exclude-agent-cases": {}
 }
 ```
 
-> This specific config will run all test cases, but exclude the longer running mass/performance test cases 9.*, and exclude the WebSocket compression test cases 12.*/13.* (which only make sense if your client library implements [RFC7692 ("permessage-deflate")](https://tools.ietf.org/html/rfc7692)).
+> This specific config will run all test cases, but exclude the longer running mass/performance test cases 9._, and exclude the WebSocket compression test cases 12._/13.\* (which only make sense if your client library implements [RFC7692 ("permessage-deflate")](https://tools.ietf.org/html/rfc7692)).
 
 Above command will also mount a host directory/volume [reports](reports) where the generated reports will be placed by the testsuite.
 
@@ -201,7 +199,7 @@ python testee_client_aio.py
 
 The testsuite comes as a single command line tool, `wstest`. You will need Python 2 or PyPy (recommended).
 
-> Right now we only support Python 2 and Python 3 will *not* work. The testsuite is developed and tested on CPython 2 and PyPy. The latter is a high-performance Python implementation.
+> Right now we only support Python 2 and Python 3 will _not_ work. The testsuite is developed and tested on CPython 2 and PyPy. The latter is a high-performance Python implementation.
 
 The recommended way to install `wstest` is into it's own, dedicated [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 
@@ -216,7 +214,6 @@ pip install autobahntestsuite
 ```
 
 You will now have the `wstest` tool:
-
 
 ```console
 (wstest)oberstet@thinkpad-t430s:~$ which wstest
@@ -312,7 +309,6 @@ Ok, will run 521 test cases for any clients connecting
 
 > Note: The fuzzing server mode will also start a Web server on port 8080 that renders a HTML page for browser WebSocket clients to be tested.
 
-
 On first run, the tool will auto-generated a test configuration file:
 
 ```console
@@ -327,38 +323,40 @@ On first run, the tool will auto-generated a test configuration file:
 }
 ```
 
-You can tweak that file to run only some tests, e.g. `"cases: ["1.*", "2.1.*"]"` will run only the tests under section 1.* and subsection 2.1.*.
-
+You can tweak that file to run only some tests, e.g. `"cases: ["1.*", "2.1.*"]"` will run only the tests under section 1._ and subsection 2.1._.
 
 ## Release Instructions (for maintainers)
 
 To manually publish releases from your development machine, you need to set up credentials and use the justfile recipes:
 
 ### 1. Setup RTD Token
+
 ```bash
 # Get your API token from https://readthedocs.org/accounts/tokens/
 export RTD_TOKEN=your_rtd_token_here
 ```
 
-### 2. Setup PyPI Token 
+### 2. Setup PyPI Token
+
 ```bash
 # Configure ~/.pypirc with your PyPI token, or set environment variable
 export TWINE_PASSWORD=your_pypi_token_here
 ```
 
 ### 3. Setup Docker Hub
+
 ```bash
 # Login to Docker Hub first
 docker login
 ```
 
 ### 4. Manual Publishing
+
 ```bash
 # Build and publish to all platforms
 just publish-to-pypi      # Uploads source distribution + wheel to PyPI
-just publish-to-dockerhub # Pushes Docker images to Docker Hub  
+just publish-to-dockerhub # Pushes Docker images to Docker Hub
 just publish-to-rtd       # Uploads documentation to Read the Docs
 ```
 
 The justfile handles building dependencies automatically - each publish recipe will build what it needs before uploading.
-

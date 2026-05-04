@@ -16,62 +16,55 @@
 ##
 ###############################################################################
 
-__all__ = ['startClient', 'startServer']
+__all__ = ["startClient", "startServer"]
 
 
-from autobahn.twisted.websocket import connectWS, \
-                                       listenWS, \
-                                       WebSocketClientFactory, \
-                                       WebSocketClientProtocol, \
-                                       WebSocketServerFactory, \
-                                       WebSocketServerProtocol
+from autobahn.twisted.websocket import (
+    WebSocketClientFactory,
+    WebSocketClientProtocol,
+    WebSocketServerFactory,
+    WebSocketServerProtocol,
+    connectWS,
+    listenWS,
+)
 
 
 class EchoServerProtocol(WebSocketServerProtocol):
-
-   def onMessage(self, payload, isBinary):
-      self.sendMessage(payload, isBinary)
-
+    def onMessage(self, payload, isBinary):
+        self.sendMessage(payload, isBinary)
 
 
 class EchoServerFactory(WebSocketServerFactory):
+    protocol = EchoServerProtocol
 
-   protocol = EchoServerProtocol
-
-   def __init__(self, url, debug = False):
-      WebSocketServerFactory.__init__(self, url, debug = debug, debugCodePaths = debug)
-
+    def __init__(self, url, debug=False):
+        WebSocketServerFactory.__init__(self, url, debug=debug, debugCodePaths=debug)
 
 
 class EchoClientProtocol(WebSocketClientProtocol):
-
-   def onMessage(self, payload, isBinary):
-      self.sendMessage(payload, isBinary)
-
+    def onMessage(self, payload, isBinary):
+        self.sendMessage(payload, isBinary)
 
 
 class EchoClientFactory(WebSocketClientFactory):
+    protocol = EchoClientProtocol
 
-   protocol = EchoClientProtocol
-
-   def __init__(self, url, debug = False):
-      WebSocketClientFactory.__init__(self, url, debug = debug, debugCodePaths = debug)
-
+    def __init__(self, url, debug=False):
+        super().__init__(url)
 
 
-def startClient(wsuri, debug = False):
-   factory = EchoClientFactory(wsuri, debug)
-   connectWS(factory)
-   return True
+def startClient(wsuri, debug=False):
+    factory = EchoClientFactory(wsuri, debug)
+    connectWS(factory)
+    return True
 
 
+def startServer(wsuri, sslKey=None, sslCert=None, debug=False):
+    factory = EchoServerFactory(wsuri, debug)
+    if sslKey and sslCert:
+        sslContext = ssl.DefaultOpenSSLContextFactory(sslKey, sslCert)
+    else:
+        sslContext = None
+    listenWS(factory, sslContext)
 
-def startServer(wsuri, sslKey = None, sslCert = None, debug = False):
-   factory = EchoServerFactory(wsuri, debug)
-   if sslKey and sslCert:
-      sslContext = ssl.DefaultOpenSSLContextFactory(sslKey, sslCert)
-   else:
-      sslContext = None
-   listenWS(factory, sslContext)
-
-   return True
+    return True

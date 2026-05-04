@@ -15,16 +15,21 @@
 ##  limitations under the License.
 ##
 ###############################################################################
-import jinja2
 import os
 import sys
 
+import jinja2
+from zope.interface import implementer
 
-__all__ = ("CSS_COMMON",
-           "CSS_MASTER_REPORT",
-           "CSS_DETAIL_REPORT",
-           "JS_MASTER_REPORT",
-           "HtmlReport")
+from autobahntestsuite.interfaces import IReportGenerator
+
+__all__ = (
+    "CSS_COMMON",
+    "CSS_MASTER_REPORT",
+    "CSS_DETAIL_REPORT",
+    "JS_MASTER_REPORT",
+    "HtmlReport",
+)
 
 ## TODO: Move the constants to jinja2 template files
 
@@ -416,23 +421,20 @@ function toggleClose() {
 """
 
 
-REPORT_DIR_PERMISSIONS = 0770
-
-
-from zope.interface import implementer
-from interfaces import IReportGenerator
+# REPORT_DIR_PERMISSIONS = 0770
+REPORT_DIR_PERMISSIONS = 770
 
 
 @implementer(IReportGenerator)
 class HtmlReportGenerator(object):
-
     def __init__(self, test_db, report_dirname):
         self.test_db = test_db
         self.report_dirname = report_dirname
         env = jinja2.Environment(
             loader=jinja2.PackageLoader("autobahntestsuite", "templates"),
             line_statement_prefix="#",
-            line_comment_prefix="##")
+            line_comment_prefix="##",
+        )
         self.wamp_details_tpl = env.get_template("wamp_details.html")
         self.wamp_index_tpl = env.get_template("wamp_overview.html")
 
@@ -440,75 +442,82 @@ class HtmlReportGenerator(object):
         if not os.path.isdir(report_dirname):
             self.createReportDirectory()
 
-    def writeReportIndexFile(self, runId, file = None):
-       # return a Deferred that yields the automatically
-       # choose filename if no file-like object was provided,
-       # and None otherwise
-       raise Exception("implement me")
-       
-    def writeReportFile(self, resultId, file = None):
-       # return a Deferred that yields the automatically
-       # choose filename if no file-like object was provided,
-       # and None otherwise
-       raise Exception("implement me")
-       
-    def createReportDirectory(self):
-       """
-       Create the directory for storing the reports. If this is not possible,
-       terminate the script.
-       """
-       try:
-          os.makedirs(self.report_dirname, REPORT_DIR_PERMISSIONS)
-       except OSError, exc:
-          print "Could not create directory: %s" % exc
-          sys.exit(1)
+    def writeReportIndexFile(self, runId, file=None):
+        # return a Deferred that yields the automatically
+        # choose filename if no file-like object was provided,
+        # and None otherwise
+        raise Exception("implement me")
 
+    def writeReportFile(self, resultId, file=None):
+        # return a Deferred that yields the automatically
+        # choose filename if no file-like object was provided,
+        # and None otherwise
+        raise Exception("implement me")
+
+    def createReportDirectory(self):
+        """
+        Create the directory for storing the reports. If this is not possible,
+        terminate the script.
+        """
+        try:
+            os.makedirs(self.report_dirname, REPORT_DIR_PERMISSIONS)
+        except OSError as exc:
+            print("Could not create directory: %s" % exc)
+            sys.exit(1)
 
     ### TODO: Move the creation of reports to a separate class.
-    def createReport(self, res, report_filename, readable_test_name, agent,
-                     description):
-       """
-       Create an HTML file called `report_filename` in the
-       `report_dirname` directory with details about the test case.
-       """
-       report_path = os.path.join(self.report_dirname, report_filename)
-       try:
-          f = open(report_path, "w")
-       except IOError, ex:
-          print "Could not create file %s: %s." % (report_path, ex)
-          return
-       try:
-           f.write(self.formatResultAsHtml(res, readable_test_name, agent,
-                                           description))
-       except Exception, ex:
-           print "Could not write report: %s." % ex
-       f.close()
+    def createReport(
+        self, res, report_filename, readable_test_name, agent, description
+    ):
+        """
+        Create an HTML file called `report_filename` in the
+        `report_dirname` directory with details about the test case.
+        """
+        report_path = os.path.join(self.report_dirname, report_filename)
+        try:
+            f = open(report_path, "w")
+        except IOError as ex:
+            print("Could not create file %s: %s." % (report_path, ex))
+            return
+        try:
+            # f.write(
+            #     self.formatResultAsHtml(res, readable_test_name, agent, description)
+            # )
 
+            f.write(
+                self.formatResultAsHtml(res, readable_test_name, agent, description)
+                or ""
+            )
+        except Exception as ex:
+            print("Could not write report: %s." % ex)
+        f.close()
 
     def formatResultAsHtml(self, res, readable_test_name, agent, description):
-       """
-       Create an HTML document with a table containing information about
-       the test outcome.
-       """
-       html = self.wamp_details_tpl.render(record_list=res[3],
-                                           test_name = readable_test_name,
-                                           expected=res[1],
-                                           observed=res[2],
-                                           outcome="Pass" if res[0] else "Fail",
-                                           agent=agent,
-                                           description=description)
-       return html
+        """
+        Create an HTML document with a table containing information about
+        the test outcome.
+        """
+        html = self.wamp_details_tpl.render(
+            record_list=res[3],
+            test_name=readable_test_name,
+            expected=res[1],
+            observed=res[2],
+            outcome="Pass" if res[0] else "Fail",
+            agent=agent,
+            description=description,
+        )
+        return html
 
-    
     def createIndex(self, reports):
         """
         Create an HTML document with a table containing an overview of all
         tests and links to the detailed documents.
         """
         try:
-            with open(os.path.join(self.report_dirname, "index.html"),
-                      "w") as f:
+            with open(os.path.join(self.report_dirname, "index.html"), "w") as f:
                 html = self.wamp_index_tpl.render(categories=reports)
-                f.write(html)
-        except Exception, ex:
-            print "Could not create index file: %s" % ex
+                # f.write(html)
+                f.write(html or "")
+
+        except Exception as ex:
+            print("Could not create index file: %s" % ex)
