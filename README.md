@@ -3,7 +3,7 @@
 This is a modernized version of the original [autobahn-testsuite](https://github.com/crossbario/autobahn-testsuite).
 The core objective was to migrate the legacy Python 2 codebase to Python 3.10+, specifically addressing the complex `str` vs `bytes` dichotomy in WebSocket payloads.
 
-> _In this port, minimum amount of changes were indended. The portions that did not requried change were kept as it is (this includes build scripts and docker configurations and also this README.md). This port is not available in `PyPI`. The intended use is thorugh the [wstest.py](./autobahntestsuite/autobahntestsuite/wstest.py) script in a python 3 environment. Please refer to the [How To Use](#how-to-use) section for more details_
+> _In this port, minimum amount of changes were intended. The portions that did not requried change were kept as it is (this includes build scripts and docker configurations and also this README.md). This port is not available in `PyPI`. The intended use is thorugh the [wstest.py](./autobahntestsuite/autobahntestsuite/wstest.py) script in a python 3 environment. Please refer to the [How To Use](#how-to-use) section for more details_
 
 # Autobahn|Testsuite
 
